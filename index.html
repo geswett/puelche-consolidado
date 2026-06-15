@@ -181,7 +181,13 @@ function render(){
       ${f.st==='pending'?`<button class="brm" onclick="removeFile(${i})">✕</button>`:''}
     </div>`).join('');
 }
-function updateBtn(){document.getElementById('btn-gen').disabled=!(workerUrl&&files.length>=2)}
+function updateBtn(){
+  const btn=document.getElementById('btn-gen');
+  if(!btn) return;
+  btn.disabled=files.length<2;
+  btn.style.opacity=files.length<2?'0.45':'1';
+  btn.style.cursor=files.length<2?'not-allowed':'pointer';
+}
 
 // ─── LOG / PROGRESS ──────────────────────────────────────────────────────────
 function log(m,t='info'){
@@ -407,7 +413,7 @@ async function buildExcel(candidates, cargo, empresa){
 
 // ─── MAIN RUN ────────────────────────────────────────────────────────────────
 async function run(){
-  if(!apiKey||files.length<2) return;
+  if(files.length<2) return;
   const cargo=document.getElementById('cargo').value||'Cargo del Proceso';
   const empresa=document.getElementById('empresa').value||'Empresa';
 
