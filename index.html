@@ -109,7 +109,7 @@ input:focus{outline:none;border-color:var(--gl);background:var(--w)}
         <input type="text" id="empresa" placeholder="ej: COMOSA">
       </div>
     </div>
-    <button class="btn-gen" id="btn-gen" onclick="run()" disabled>
+    <button class="btn-gen" id="btn-gen" onclick="run()">
       <span>✨ Analizar PDFs y Generar Consolidado Excel</span>
     </button>
     <div class="prog" id="prog">
@@ -146,7 +146,13 @@ addEventListener('DOMContentLoaded',()=>{
 });
 
 function setSt(t,m){} // no-op, kept for compatibility
-function updateBtn(){document.getElementById('btn-gen').disabled=!(files.length>=2)}
+function updateBtn(){
+  const btn=document.getElementById('btn-gen');
+  if(!btn) return;
+  btn.disabled=files.length<2;
+  btn.style.opacity=files.length<2?'0.45':'1';
+  btn.style.cursor=files.length<2?'not-allowed':'pointer';
+}
 
 // ─── FILES ───────────────────────────────────────────────────────────────────
 function setupDrop(){
