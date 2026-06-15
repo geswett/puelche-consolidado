@@ -146,13 +146,6 @@ addEventListener('DOMContentLoaded',()=>{
 });
 
 function setSt(t,m){} // no-op, kept for compatibility
-function updateBtn(){
-  const btn=document.getElementById('btn-gen');
-  if(!btn) return;
-  btn.disabled=files.length<2;
-  btn.style.opacity=files.length<2?'0.45':'1';
-  btn.style.cursor=files.length<2?'not-allowed':'pointer';
-}
 
 // ─── FILES ───────────────────────────────────────────────────────────────────
 function setupDrop(){
