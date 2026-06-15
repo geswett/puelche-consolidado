@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Puelche HC — Generador de Consolidado</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display:ital@0;1&display=swap');
+:root{--g:#3a6b35;--gl:#5a9b52;--gp:#eef5ed;--gray:#6b6b6b;--bdr:#d8e4d7;--bg:#f5f8f5;--w:#fff;--sh:0 2px 20px rgba(58,107,53,.08);--sh2:0 8px 32px rgba(58,107,53,.16)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#2c2c2c;min-height:100vh}
+header{background:var(--w);border-bottom:1px solid var(--bdr);padding:16px 40px;display:flex;align-items:center;gap:14px;box-shadow:var(--sh)}
+.logo{height:42px;width:auto;object-fit:contain}
+.vdiv{width:1px;height:30px;background:var(--bdr)}
+.hd-title{font-family:'DM Serif Display',serif;font-size:18px;color:var(--g)}
+.hd-sub{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin-top:1px}
+main{max-width:920px;margin:0 auto;padding:36px 20px}
+.card{background:var(--w);border:1px solid var(--bdr);border-radius:14px;padding:26px;margin-bottom:22px;box-shadow:var(--sh)}
+.sec-lbl{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--g);margin-bottom:14px}
+.row{display:flex;gap:10px;align-items:center}
+input[type=password],input[type=text]{padding:10px 14px;border:1.5px solid var(--bdr);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:#2c2c2c;background:var(--bg);transition:border .2s,background .2s;width:100%}
+input:focus{outline:none;border-color:var(--gl);background:var(--w)}
+.btn-sm{padding:10px 18px;background:var(--g);color:var(--w);border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s}
+.btn-sm:hover{background:var(--gl)}
+.api-st{font-size:12px;margin-top:7px;min-height:15px}
+.api-st.ok{color:var(--gl)}.api-st.err{color:#c0392b}
+.drop{border:2px dashed var(--bdr);border-radius:10px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .25s;background:var(--bg);position:relative}
+.drop:hover,.drop.over{border-color:var(--gl);background:var(--gp)}
+#fi{position:absolute;inset:0;opacity:0;cursor:pointer}
+.di{font-size:36px;display:block;margin-bottom:10px}
+.dt{font-size:14px;font-weight:600;margin-bottom:5px}
+.ds{font-size:12px;color:var(--gray)}
+.flist{margin-top:18px;display:flex;flex-direction:column;gap:7px}
+.fitem{display:flex;align-items:center;gap:12px;padding:11px 15px;background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;animation:si .2s ease}
+@keyframes si{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.ficon{font-size:20px;flex-shrink:0}
+.finfo{flex:1;min-width:0}
+.fname{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fsize{font-size:11px;color:var(--gray);margin-top:2px}
+.fst{font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;flex-shrink:0}
+.fst.pending{background:#fff3cd;color:#856404}
+.fst.processing{background:#cff4fc;color:#0c5460}
+.fst.done{background:#d1e7dd;color:#0a3622}
+.fst.error{background:#f8d7da;color:#58151c}
+.brm{background:none;border:none;color:var(--gray);cursor:pointer;font-size:15px;padding:3px 5px;border-radius:4px;transition:color .2s;flex-shrink:0}
+.brm:hover{color:#c0392b}
+.meta{display:flex;gap:18px;margin-bottom:18px;flex-wrap:wrap}
+.mf{flex:1;min-width:190px}
+.ml{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--gray);margin-bottom:6px}
+.btn-gen{width:100%;padding:15px;background:var(--g);color:var(--w);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .25s;letter-spacing:.3px}
+.btn-gen:hover:not(:disabled){background:var(--gl);box-shadow:var(--sh2);transform:translateY(-1px)}
+.btn-gen:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.prog{margin-top:18px;display:none}
+.prog.v{display:block}
+.pb-out{height:6px;background:var(--bdr);border-radius:99px;overflow:hidden;margin-bottom:8px}
+.pb-in{height:100%;background:linear-gradient(90deg,var(--g),var(--gl));border-radius:99px;transition:width .4s ease;width:0}
+.pt{font-size:12px;color:var(--gray);text-align:center}
+.log-s{display:none}.log-s.v{display:block}
+.logbox{background:#1a1a1a;border-radius:8px;padding:14px;font-family:'Courier New',monospace;font-size:11.5px;color:#a8d5a2;max-height:180px;overflow-y:auto;line-height:1.8}
+.ll.warn{color:#f0c040}.ll.err{color:#f07070}
+.res{background:var(--gp);border:2px solid var(--gl);border-radius:14px;padding:28px;text-align:center;display:none;animation:fi .4s ease}
+.res.v{display:block}
+@keyframes fi{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+.ri{font-size:44px;margin-bottom:10px}
+.rt{font-family:'DM Serif Display',serif;font-size:22px;color:var(--g);margin-bottom:7px}
+.rs{font-size:13px;color:var(--gray);margin-bottom:18px}
+.btn-dl{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:var(--g);color:var(--w);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-dl:hover{background:var(--gl);box-shadow:var(--sh2)}
+.spin{width:17px;height:17px;border:2.5px solid rgba(255,255,255,.35);border-top-color:var(--w);border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(max-width:600px){header{padding:13px 18px}main{padding:18px 12px}.meta{flex-direction:column}}
+</style>
+</head>
+<body>
+<header>
+  <img class="logo" src="data:image/jpeg;base64,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" alt="Puelche HC">
+  <div class="vdiv"></div>
+  <div>
+    <div class="hd-title">Generador de Consolidado</div>
+    <div class="hd-sub">Informes Psicolaborales · Puelche HC</div>
+  </div>
+</header>
+
+<main>
+  <!-- Worker URL está configurada en el código — colaboradores no necesitan configurar nada -->
+
+  <div class="card">
+    <div class="sec-lbl">📄 Informes PDF de Candidatos</div>
+    <div class="drop" id="drop">
+      <input type="file" id="fi" accept=".pdf" multiple>
+      <span class="di">📂</span>
+      <div class="dt">Arrastra los PDFs aquí o haz clic para seleccionar</div>
+      <div class="ds">Mínimo 2 informes psicolaborales — Formato PDF</div>
+    </div>
+    <div class="flist" id="flist"></div>
+  </div>
+
+  <div class="card">
+    <div class="sec-lbl">⚙️ Datos del Proceso</div>
+    <div class="meta">
+      <div class="mf">
+        <div class="ml">Cargo del proceso</div>
+        <input type="text" id="cargo" placeholder="ej: Business Intelligence & Growth Lead">
+      </div>
+      <div class="mf">
+        <div class="ml">Empresa cliente</div>
+        <input type="text" id="empresa" placeholder="ej: COMOSA">
+      </div>
+    </div>
+    <button class="btn-gen" id="btn-gen" onclick="run()" disabled>
+      <span>✨ Analizar PDFs y Generar Consolidado Excel</span>
+    </button>
+    <div class="prog" id="prog">
+      <div class="pb-out"><div class="pb-in" id="pb"></div></div>
+      <div class="pt" id="pt">Iniciando...</div>
+    </div>
+  </div>
+
+  <div class="card log-s" id="log-s">
+    <div class="sec-lbl">📋 Actividad</div>
+    <div class="logbox" id="logbox"></div>
+  </div>
+
+  <div class="res" id="res">
+    <div class="ri">🎉</div>
+    <div class="rt">¡Consolidado listo!</div>
+    <div class="rs" id="rs">Se procesaron X candidatos exitosamente.</div>
+    <button class="btn-dl" id="btn-dl">⬇️ Descargar Excel</button>
+  </div>
+</main>
+
+<!-- PDF.js renders into temporary offscreen canvases created in JS -->
+
+<script>
+// ─── CONFIG — CAMBIAR ESTA URL POR LA DE TU WORKER ───────────────────────────
+const WORKER_URL = 'REEMPLAZAR_CON_TU_URL';
+// Ejemplo: 'https://puelche-hc.gonzalo.workers.dev'
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let files=[], blob=null, fname='';
+
+addEventListener('DOMContentLoaded',()=>{
+  setupDrop(); updateBtn();
+});
+
+function setSt(t,m){} // no-op, kept for compatibility
+function updateBtn(){document.getElementById('btn-gen').disabled=!(files.length>=2)}
+
+// ─── FILES ───────────────────────────────────────────────────────────────────
+function setupDrop(){
+  const z=document.getElementById('drop'), fi=document.getElementById('fi');
+  z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('over')});
+  z.addEventListener('dragleave',()=>z.classList.remove('over'));
+  z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('over');addFiles([...e.dataTransfer.files])});
+  fi.addEventListener('change',()=>{addFiles([...fi.files]);fi.value=''});
+}
+function addFiles(nf){
+  nf.filter(f=>f.name.endsWith('.pdf')).forEach(f=>{
+    if(!files.find(x=>x.file.name===f.name&&x.file.size===f.size))
+      files.push({file:f,st:'pending'});
+  });
+  render(); updateBtn();
+  document.getElementById('res').classList.remove('v');
+}
+function removeFile(i){files.splice(i,1);render();updateBtn()}
+function stLabel(s){return{pending:'Pendiente',processing:'Procesando…',done:'Listo ✓',error:'Error ✗'}[s]||s}
+function render(){
+  document.getElementById('flist').innerHTML=files.map((f,i)=>`
+    <div class="fitem">
+      <span class="ficon">📄</span>
+      <div class="finfo"><div class="fname">${f.file.name}</div><div class="fsize">${(f.file.size/1024).toFixed(0)} KB</div></div>
+      <span class="fst ${f.st}">${stLabel(f.st)}</span>
+      ${f.st==='pending'?`<button class="brm" onclick="removeFile(${i})">✕</button>`:''}
+    </div>`).join('');
+}
+function updateBtn(){document.getElementById('btn-gen').disabled=!(workerUrl&&files.length>=2)}
+
+// ─── LOG / PROGRESS ──────────────────────────────────────────────────────────
+function log(m,t='info'){
+  const b=document.getElementById('logbox');
+  document.getElementById('log-s').classList.add('v');
+  const d=document.createElement('div'); d.className='ll '+t;
+  d.textContent=`[${new Date().toLocaleTimeString('es-CL')}] ${m}`;
+  b.appendChild(d); b.scrollTop=b.scrollHeight;
+}
+function setProg(p,t){
+  document.getElementById('prog').classList.add('v');
+  document.getElementById('pb').style.width=p+'%';
+  document.getElementById('pt').textContent=t;
+}
+
+// ─── UTILS ───────────────────────────────────────────────────────────────────
+function delay(ms){return new Promise(r=>setTimeout(r,ms))}
+function fileToB64(f){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result.split(',')[1]);
+    r.onerror=()=>rej(new Error('Error leyendo '+f.name));
+    r.readAsDataURL(f);
+  });
+}
+
+// ─── CLAUDE API EXTRACTION (via Cloudflare Worker) ──────────────────────────
+async function extractFromPDF(b64, name, attempt=1){
+  const r=await fetch(WORKER_URL+'/analyze',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({pdf_b64:b64})
+  });
+
+  if(r.status===429){
+    if(attempt>3) throw new Error('Rate limit persistente. Espera 1 minuto e intenta de nuevo.');
+    const wait=25*attempt;
+    log(`⏳ Rate limit — esperando ${wait}s (intento ${attempt}/3)…`,'warn');
+    await delay(wait*1000);
+    return extractFromPDF(b64,name,attempt+1);
+  }
+  if(!r.ok){
+    const e=await r.json().catch(()=>({}));
+    throw new Error(e.error||`Worker error ${r.status}`);
+  }
+  return await r.json();
+}
+
+// ─── EXTRACT CHART FROM PDF (PDF.js — 100% browser, no server needed) ────────
+async function extractChartFromPDF(pdfB64){
+  // Configure PDF.js worker
+  if(!pdfjsLib.GlobalWorkerOptions.workerSrc)
+    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  // Load PDF from base64
+  const pdfBytes=Uint8Array.from(atob(pdfB64),c=>c.charCodeAt(0));
+  const pdf=await pdfjsLib.getDocument({data:pdfBytes}).promise;
+
+  // Chart is on page 2 (index 1)
+  const page=await pdf.getPage(2);
+
+  // Render at 3x scale for quality
+  const scale=3;
+  const viewport=page.getViewport({scale});
+  const W=viewport.width, H=viewport.height;
+
+  // Use a temporary offscreen canvas
+  const canvas=document.createElement('canvas');
+  canvas.width=W; canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#ffffff';
+  ctx.fillRect(0,0,W,H);
+
+  await page.render({canvasContext:ctx,viewport}).promise;
+
+  // Crop: just the chart area (skip intro text, keep radar + labels)
+  // These ratios were calibrated against real Puelche HC reports
+  const left  =Math.floor(W*0.03);
+  const right =Math.floor(W*0.97);
+  const top   =Math.floor(H*0.28);
+  const bottom=Math.floor(H*0.62);
+  const cW=right-left, cH=bottom-top;
+
+  const cropCanvas=document.createElement('canvas');
+  cropCanvas.width=cW; cropCanvas.height=cH;
+  const cropCtx=cropCanvas.getContext('2d');
+  cropCtx.drawImage(canvas, left, top, cW, cH, 0, 0, cW, cH);
+
+  // Return as base64 PNG (strip data: prefix)
+  return cropCanvas.toDataURL('image/png').split(',')[1];
+}
+
+// ─── EXCEL GENERATION (ExcelJS — full formatting + images) ───────────────────
+async function buildExcel(candidates, cargo, empresa){
+  const XL=ExcelJS;
+  const wb=new XL.Workbook();
+  wb.creator='Puelche HC'; wb.created=new Date();
+  const ws=wb.addWorksheet('Consolidado Finalistas');
+  const n=candidates.length;
+
+  // ── Column widths (set individually to avoid ExcelJS key bug) ──────────────
+  ws.getColumn(1).width=3;   // A
+  ws.getColumn(2).width=22;  // B
+  ws.getColumn(3).width=3;   // C
+  ws.getColumn(4).width=24;  // D
+  ws.getColumn(5).width=3;   // E
+  for(let i=0;i<n;i++) ws.getColumn(6+i).width=52;  // F, G, H…
+
+  // ── Row heights ────────────────────────────────────────────────────────────
+  const rowH={1:18,2:18,3:18,4:18,5:30,6:10,7:28,8:16,9:16,10:44,
+              11:10,12:44,13:30,14:20,15:10,16:20,17:20,18:20,
+              19:10,20:10,21:20,22:72,23:60,24:210,25:95};
+  Object.entries(rowH).forEach(([r,h])=>ws.getRow(+r).height=h);
+
+  // ── Style helpers ──────────────────────────────────────────────────────────
+  const thin={style:'thin',color:{argb:'FFB8D4B7'}};
+  const med ={style:'medium',color:{argb:'FF3A6B35'}};
+  const bThin={top:thin,bottom:thin,left:thin,right:thin};
+  const bMed ={top:med,bottom:med,left:med,right:med};
+
+  function styleCell(cell,{bg,fc='FF2C2C2C',bold=false,sz=10,wrap=true,vAlign='middle',hAlign='center',border=bThin}={}){
+    if(bg) cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:bg}};
+    cell.font={name:'Calibri',size:sz,bold,color:{argb:fc}};
+    cell.alignment={wrapText:wrap,vertical:vAlign,horizontal:hAlign};
+    cell.border=border;
+  }
+
+  function setVal(row,col,value,opts){
+    const cell=ws.getCell(row,col);
+    cell.value=value;
+    styleCell(cell,opts);
+  }
+
+  // ── Merges ────────────────────────────────────────────────────────────────
+  const lastCol=5+n;
+  ws.mergeCells(5,2,5,lastCol);          // Title
+  ws.mergeCells(7,2,10,2);              // INFO GENERAL
+  ws.mergeCells(12,2,14,2);             // INFO LABORAL
+  ws.mergeCells(16,2,18,2);             // CONDICIONES
+  ws.mergeCells(21,2,25,2);             // INFORME PSICO
+
+  // ── Rows 1-4 padding ──────────────────────────────────────────────────────
+  // (logo will go here as image)
+
+  // ── Row 5: Title ──────────────────────────────────────────────────────────
+  setVal(5,2,`FINALISTAS - ${cargo.toUpperCase()} - ${empresa.toUpperCase()}`,
+    {bg:'FFD4E8D1',fc:'FF2C4A29',bold:true,sz:12,border:bMed});
+
+  // ── Section helper ────────────────────────────────────────────────────────
+  function section(r1,r2,txt){
+    setVal(r1,2,txt,{bg:'FF3A6B35',fc:'FFFFFFFF',bold:true,sz:10,border:bMed});
+  }
+  function label(r,txt){
+    setVal(r,4,txt,{bg:'FFEEF5ED',fc:'FF2C4A29',bold:true,sz:10,border:bThin});
+  }
+  function dataRow(r,values,opts={}){
+    values.forEach((v,i)=>setVal(r,6+i,v,{fc:'FF2C2C2C',sz:9,hAlign:'left',...opts}));
+  }
+
+  // ── INFORMACION GENERAL ──────────────────────────────────────────────────
+  section(7,10,'INFORMACION\nGENERAL');
+  label(7,'Nombre');  dataRow(7,candidates.map(c=>c.nombre),{bold:true});
+  label(8,'Edad');    dataRow(8,candidates.map(c=>c.edad));
+  label(9,'Ciudad');  dataRow(9,candidates.map(c=>c.ciudad));
+  label(10,'Educación /\nFormación'); dataRow(10,candidates.map(c=>c.formacion));
+
+  // ── INFORMACION LABORAL ───────────────────────────────────────────────────
+  section(12,14,'INFORMACION\nLABORAL');
+  label(12,'Cargo actual /\nÚltimo Cargo');  dataRow(12,candidates.map(c=>c.cargo_actual));
+  label(13,'Otras Empresas\nRelevantes');    dataRow(13,candidates.map(c=>c.empresas_relevantes));
+  label(14,'Estado Laboral');               dataRow(14,candidates.map(c=>c.estado_laboral));
+
+  // ── CONDICIONES LABORALES ─────────────────────────────────────────────────
+  section(16,18,'CONDICIONES\nLABORALES');
+  label(16,'Renta Actual Liq.');   dataRow(16,candidates.map(()=>''));
+  label(17,'Renta Estimada Liq.'); dataRow(17,candidates.map(c=>c.renta_estimada));
+  label(18,'Disponibilidad');      dataRow(18,candidates.map(c=>c.disponibilidad));
+
+  // ── INFORME PSICOLABORAL ──────────────────────────────────────────────────
+  section(21,25,'INFORME\nPSICOLABORAL');
+  label(21,'Ajuste al Cargo');
+  label(22,'Fortalezas de\ncompetencias');
+  label(23,'Áreas de\ndesarrollo');
+  label(24,'Gráfico de\nCompetencias');
+  label(25,'Sugerencias');
+
+  const ajColors={
+    'Recomendado':               {bg:'FFD1E7DD',fc:'FF0A3622'},
+    'Recomendado Con Observaciones':{bg:'FFFFF3CD',fc:'FF664D03'},
+    'No Recomendado':            {bg:'FFF8D7DA',fc:'FF58151C'},
+  };
+  candidates.forEach((c,i)=>{
+    const col=6+i;
+    const aj=c.ajuste_cargo||'Recomendado';
+    const {bg,fc}=ajColors[aj]||{bg:'FFFFFFFF',fc:'FF000000'};
+    setVal(21,col,aj+'.',{bg,fc,bold:true,sz:10,hAlign:'left'});
+    setVal(22,col,c.fortalezas,{fc:'FF2C2C2C',sz:9,hAlign:'left',vAlign:'top'});
+    setVal(23,col,c.debilidades,{fc:'FF2C2C2C',sz:9,hAlign:'left',vAlign:'top'});
+    setVal(24,col,'',{fc:'FF2C2C2C',sz:9});
+    setVal(25,col,c.sugerencias,{fc:'FF2C2C2C',sz:9,hAlign:'left',vAlign:'top'});
+  });
+
+  // ── LOGO ──────────────────────────────────────────────────────────────────
+  try{
+    const logoId=wb.addImage({base64:'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8TW0NtfMnh7UZodJnS3jniG5LiRo4nwcAsn+tADEFSQfmB4rQ1/xv/YHiGz0uezU29z5Q+0+dlgzyFAvlqrP6HcQF56jBNAHjfxL/Zn8R/Ebx1c+K5Ne0exebygtusMsgAjUKMtkZzj0Fe1eIfCFp488KT6D4stLeWK5UCQWzthGByroxAIYHkf1Gaoa78RotCuNctZdNle605YGtIN+H1IyDpEMZOGypxnkdq05/F1raeLR4euVS3L2a3UdxLKFWRmlKeWoPVuM9e/SgDxbw3+zp44+F2sz33w98d2qW1xgS2eqWpKSAdA+3IJGT8wCnk+tem6VZfFW5Kx63rHhCzi/ifTbCeSRvoZJAqn3Ib6Vt6V4jvtQ8T6rosumRQRacsLG5FwzeaJQxXC7ByAvPPGR1rMX4hyy+HfD2sQ6BeTvrVz9nFpHIokhGyVy2WwDxEeCRksOaAJPid4R17xl4TfSfD/ii68PXxkVzeQg7pFAIKEqQVByDlcdPTIrE+DXw48WfD+2v08TeNrvxGLkr5MMpdlt8ZyQzktzkccDjvWynxGil8P65rMWj6i6aVefYxD5TLLKcR5cqwBRVMh3Eg4CMea0PDPi2HxFd31opszLZrEzG0naeMh92MOY1U/dPQn3xQB0FFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAYooooAMUUUUAGKKKKACjFFFABiiiigAooooAKMYoooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//Z',extension:'jpeg'});
+    ws.addImage(logoId,{tl:{col:1,row:0},ext:{width:160,height:64}});
+  }catch(e){log('Logo: '+e.message,'warn')}
+
+  // ── RADAR CHARTS — use real chart extracted from PDF ──────────────────────
+  for(let i=0;i<candidates.length;i++){
+    try{
+      const chartB64=candidates[i]._chartB64||null;
+      if(!chartB64) throw new Error('sin imagen');
+      const imgId=wb.addImage({base64:chartB64,extension:'png'});
+      ws.addImage(imgId,{tl:{col:5+i,row:23},ext:{width:380,height:200}});
+    }catch(e){log(`Gráfico ${i+1} no disponible: `+e.message,'warn')}
+  }
+
+  // ── Export ────────────────────────────────────────────────────────────────
+  const buf=await wb.xlsx.writeBuffer();
+  return new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+
+// ─── MAIN RUN ────────────────────────────────────────────────────────────────
+async function run(){
+  if(!apiKey||files.length<2) return;
+  const cargo=document.getElementById('cargo').value||'Cargo del Proceso';
+  const empresa=document.getElementById('empresa').value||'Empresa';
+
+  document.getElementById('res').classList.remove('v');
+  document.getElementById('log-s').classList.remove('v');
+  document.getElementById('logbox').innerHTML='';
+  document.getElementById('prog').classList.remove('v');
+
+  const btn=document.getElementById('btn-gen');
+  btn.disabled=true;
+  btn.innerHTML='<div class="spin"></div><span>Procesando informes…</span>';
+
+  const candidates=[];
+  try{
+    log(`Iniciando análisis de ${files.length} informes con IA…`);
+    for(let i=0;i<files.length;i++){
+      const f=files[i];
+      f.st='processing'; render();
+      setProg(Math.round(i/files.length*80),`Analizando ${i+1} de ${files.length}: ${f.file.name}`);
+      log(`📄 Procesando: ${f.file.name}`);
+      const b64=await fileToB64(f.file);
+      log('🤖 Extrayendo datos con Claude API…');
+      const data=await extractFromPDF(b64,f.file.name);
+      candidates.push(data);
+      f.st='done'; render();
+      log(`✓ ${data.nombre} — ${data.ajuste_cargo}`);
+
+      // Extract real chart directly from PDF in browser (no server needed)
+      try{
+        setProg(Math.round((i+0.7)/files.length*80),`Extrayendo gráfico de ${f.file.name}…`);
+        data._chartB64=await extractChartFromPDF(b64);
+        log(`📊 Gráfico extraído del PDF para ${data.nombre}`);
+      }catch(chartErr){
+        log(`⚠️ No se pudo extraer gráfico: ${chartErr.message}`,'warn');
+      }
+
+      // Pausa entre PDFs para no superar rate limit
+      if(i<files.length-1){
+        log('⏱ Esperando 20s antes del siguiente informe…','warn');
+        for(let t=20;t>0;t--){
+          setProg(Math.round((i+1)/files.length*80),`Pausa ${t}s — preparando siguiente informe…`);
+          await delay(1000);
+        }
+      }
+    }
+
+    setProg(88,'Generando Excel con formato y gráficos…');
+    log('📊 Construyendo Excel con colores, bordes y gráficos radar…');
+
+    blob=await buildExcel(candidates,cargo,empresa);
+    fname=`Consolidado_${empresa}_${cargo.replace(/[^a-zA-Z0-9]/g,'_')}.xlsx`;
+
+    setProg(100,'¡Completado!');
+    log(`✅ Archivo listo: ${fname}`);
+
+    document.getElementById('btn-dl').onclick=()=>{
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download=fname; a.click();
+      URL.revokeObjectURL(url);
+    };
+    document.getElementById('rs').textContent=`Se procesaron ${candidates.length} candidatos exitosamente.`;
+    document.getElementById('res').classList.add('v');
+
+  }catch(e){
+    log(`❌ Error: ${e.message}`,'err');
+    files.forEach(f=>{if(f.st==='processing') f.st='error'});
+    render();
+    alert(`Error: ${e.message}`);
+  }
+
+  btn.disabled=false;
+  btn.innerHTML='<span>✨ Analizar PDFs y Generar Consolidado Excel</span>';
+  updateBtn();
+}
+</script>
+</body>
+</html>
