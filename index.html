@@ -432,13 +432,15 @@ async function buildExcel() {
   function richBullets(text, bold) {
     if (!text) return '';
     const f = { name:'Calibri', size:9, bold:!!bold, color:{ argb:FCOL } };
-    const bullets = text.split(/\n/).map(l => l.trim()).filter(Boolean);
-    if (bullets.length <= 1) return text;
+    // Split on bullet symbol •, which may come anywhere in the string
+    const parts = text.split(/(?=•)/).map(l => l.trim()).filter(Boolean);
+    // If only one part (no bullets), return plain text
+    if (parts.length <= 1) return text;
     const richText = [];
-    bullets.forEach((line, i) => {
+    parts.forEach((line, i) => {
       richText.push({ font:f, text: line });
-      if (i < bullets.length - 1) {
-        richText.push({ font:f, text: '\n\n' });  // blank line between bullets
+      if (i < parts.length - 1) {
+        richText.push({ font:f, text: '\n\n' }); // blank line between bullets
       }
     });
     return { richText };
@@ -458,6 +460,8 @@ async function buildExcel() {
   function secLabel(r1, r2, label) {
     sc(r1, 2, label, fntLbl(), fillGreen, alnCC(), allBorders);
     ws.mergeCells(r1, 2, r2, 2);
+    // Re-apply alignment AFTER merge — ExcelJS requires this for merged cells
+    ws.getCell(r1, 2).alignment = alnCC();
     for (let r = r1+1; r <= r2; r++) {
       const c = ws.getCell(r, 2);
       c.fill = fillGreen; c.border = allBorders;
@@ -467,6 +471,7 @@ async function buildExcel() {
   // ── Field row (col D center/center + candidate values) ──────────────────────
   function fieldRow(r, label, values, valFont, valAlign, useBullets) {
     sc(r, 4, label, fntLbl(), fillGreen, alnDC(), allBorders);
+    ws.getCell(r, 4).alignment = alnDC(); // force center/center after any implicit merge
     values.forEach((val, i) => {
       const cellVal = useBullets ? richBullets(val, valFont.bold) : (val||'');
       const cell = ws.getCell(r, candColIdx(i));
