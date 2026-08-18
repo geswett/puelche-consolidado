@@ -261,8 +261,8 @@ Claves requeridas (usa "" si no aparece el dato):
 - disponibilidad  → disponibilidad para incorporarse (ej: "Inmediata", "Un mes")
 - resumen_laboral → 4-6 viñetas con los hitos más relevantes de su trayectoria, separadas con •
 - ajuste_cargo    → exactamente "Recomendado/a", "Recomendado/a con observaciones", o "No recomendado/a"
-- competencias    → resume las 2 o 3 fortalezas más importantes del candidato en formato de viñetas cortas. Cada viñeta: "• Nombre de la competencia — una frase breve explicando por qué destaca." Máximo 3 viñetas. Basa esto en la sección VI (síntesis) y sección VII (áreas de dominio).
-- debilidades     → resume las 2 o 3 áreas de desarrollo más importantes en formato de viñetas cortas. Cada viñeta: "• Nombre del área — una frase breve explicando el desafío." Máximo 3 viñetas. Basa esto en la sección VI (oportunidades de mejora) y sección VII (áreas de desafíos).
+- competencias    → resume las 2 o 3 fortalezas más importantes. Formato: "• Nombre — descripción." Cada viñeta máximo 2 líneas, directa y concisa. Sin párrafos largos.
+- debilidades     → resume las 2 o 3 áreas de desarrollo más importantes. Formato: "• Nombre — descripción." Cada viñeta máximo 2 líneas, directa y concisa. Sin párrafos largos.
 - sugerencias     → párrafos de recomendaciones para la contratación de la sección VI (los que empiezan con "En caso de contratación", "Se recomienda", "Resultará favorable", etc.)`;
 
   const resp = await fetch('https://puelche-hc.administracion-ee6.workers.dev/analyze', {
@@ -365,53 +365,54 @@ async function buildExcel() {
   const wb = new ExcelJS.Workbook();
   const ws = wb.addWorksheet('Consolidado Finalistas');
 
-  // ── Colors & styles ────────────────────────────────────────────────────────
-  const GREEN  = 'FFC2D69B';  // olive green (section + field label bg)
-  const WHITE  = 'FFFFFFFF';
-  const FCOL   = 'FF434343';  // dark gray font
+  // ── Colors ─────────────────────────────────────────────────────────────────
+  const GREEN      = 'FFC2D69B';   // section/field label bg
+  const WHITE      = 'FFFFFFFF';
+  const FCOL       = 'FF434343';   // font color dark gray
+  const BORDER_COL = 'FF9BBB59';   // green border #9BBB59
 
-  const thinB = { style:'thin', color:{ argb:'FF000000' } };
+  const thinB      = { style:'thin', color:{ argb: BORDER_COL } };
   const allBorders = { top:thinB, left:thinB, bottom:thinB, right:thinB };
 
-  const fillGreen = { type:'pattern', pattern:'solid', fgColor:{ argb:GREEN } };
-  const fillWhite = { type:'pattern', pattern:'solid', fgColor:{ argb:WHITE } };
+  const fillGreen  = { type:'pattern', pattern:'solid', fgColor:{ argb: GREEN } };
+  const fillWhite  = { type:'pattern', pattern:'solid', fgColor:{ argb: WHITE } };
 
-  function fnt(sz, bold) {
-    return { name:'Calibri', size:sz, bold:!!bold, color:{ argb:FCOL } };
-  }
-  function aln(h, v, wrap) {
-    return { horizontal:h||'left', vertical:v||'center', wrapText:!!wrap };
-  }
+  // Font helpers
+  function fnt(sz, bold)  { return { name:'Calibri', size:sz, bold:!!bold, color:{ argb:FCOL } }; }
+  function fntVal(bold)   { return fnt(9, bold); }   // value cells always size 9
+  function fntLbl()       { return fnt(10, true); }  // label cells size 10 bold
+
+  // Alignment helpers
+  function alnCC()  { return { horizontal:'center', vertical:'center', wrapText:true }; }
+  function alnLT()  { return { horizontal:'left',   vertical:'top',    wrapText:true }; }
+  function alnLC()  { return { horizontal:'left',   vertical:'center', wrapText:true }; }
 
   // ── Column layout ──────────────────────────────────────────────────────────
   // A=margin, B=section, C=spacer, D=field, E=spacer, F=cand1, G=spacer, H=cand2...
-  // Candidate col index (1-based): 6, 8, 10, 12, 14 ...
-  function candColIdx(i) { return 6 + i * 2; }
+  function candColIdx(i) { return 6 + i * 2; }  // 1-based
 
   ws.columns = [
-    { width: 3.0  },  // A
-    { width: 18.0 },  // B  section labels
-    { width: 1.71 },  // C  spacer
-    { width: 17.86},  // D  field labels
-    { width: 2.0  },  // E  spacer
+    { width: 3.0   },  // A
+    { width: 18.0  },  // B  section labels
+    { width: 1.71  },  // C  spacer
+    { width: 17.86 },  // D  field labels
+    { width: 2.0   },  // E  spacer
     ...Array.from({length: n}, (_, i) => [
-      { width: 44.0 },                           // candidate col
-      ...(i < n-1 ? [{ width: 2.0 }] : [])      // spacer (not after last)
+      { width: 44.0 },
+      ...(i < n-1 ? [{ width: 2.0 }] : [])
     ]).flat()
   ];
 
   // ── Row heights ────────────────────────────────────────────────────────────
   const rowHeights = {
-    4: 24,   5: 13.5, 6: 18,   7: 12.75, 8: 12.75, 9: 52.5,
-    10: 10.5, 11: 39.75, 12: 31.5, 13: 15.75,
-    14: 10.5, 15: 15.75, 16: 15.75,
-    17: 15.0, 18: 15.75, 19: 70.5, 20: 106.5, 21: 117.75, 22: 120.0
+    4:24, 5:13.5, 6:18, 7:12.75, 8:12.75, 9:52.5,
+    10:10.5, 11:39.75, 12:31.5, 13:15.75,
+    14:10.5, 15:15.75, 16:15.75,
+    17:15.0, 18:15.75, 19:70.5, 20:90, 21:105, 22:120
   };
-  for (let r = 1; r <= 23; r++) {
-    ws.getRow(r).height = rowHeights[r] || 15;
-  }
+  for (let r = 1; r <= 23; r++) ws.getRow(r).height = rowHeights[r] || 15;
 
-  // ── Helper: style one cell ─────────────────────────────────────────────────
+  // ── Cell writer ────────────────────────────────────────────────────────────
   function sc(row, col, value, font, fill, alignment, border) {
     const cell = ws.getCell(row, col);
     cell.value = value || '';
@@ -421,102 +422,102 @@ async function buildExcel() {
     if (border)    cell.border    = border;
   }
 
-  // ── Helper: write a section label (col B, spanning r1..r2) ────────────────
+  // ── Section label: col B, merged r1..r2, centered ─────────────────────────
   function secLabel(r1, r2, label) {
-    sc(r1, 2, label, fnt(10,true), fillGreen, aln('center','center',true), allBorders);
+    sc(r1, 2, label, fntLbl(), fillGreen, alnCC(), allBorders);
     ws.mergeCells(r1, 2, r2, 2);
-    // Fill merged cells below
     for (let r = r1+1; r <= r2; r++) {
       const c = ws.getCell(r, 2);
       c.fill = fillGreen; c.border = allBorders;
     }
   }
 
-  // ── Helper: write a field row (col D label + candidate values) ─────────────
-  function fieldRow(r, label, values, valH, valWrap) {
-    sc(r, 4, label, fnt(10,true), fillGreen, aln('center','center',true), allBorders);
+  // ── Field row: col D (label, centered) + candidate value cells ────────────
+  function fieldRow(r, label, values, valFont, valAlign) {
+    sc(r, 4, label, fntLbl(), fillGreen, alnCC(), allBorders);
     values.forEach((val, i) => {
-      sc(r, candColIdx(i), val||'', fnt(10,false), fillWhite,
-         aln(valH||'left','center',valWrap!==false), allBorders);
+      sc(r, candColIdx(i), val||'', valFont, fillWhite, valAlign, allBorders);
     });
   }
 
+  // ── Last candidate column index ────────────────────────────────────────────
+  const lastCandCol = candColIdx(n - 1);
+
   // ── Row 5: Title bar ───────────────────────────────────────────────────────
-  const lastCandCol = candColIdx(n-1);
-  sc(5, 2, `FINALISTAS — ${TITLE}`, fnt(10,true), fillGreen, aln('center','center',true), allBorders);
+  sc(5, 2, `FINALISTAS — ${TITLE}`, fntLbl(), fillGreen, alnCC(), allBorders);
   ws.mergeCells(5, 2, 5, lastCandCol);
   for (let c = 3; c <= lastCandCol; c++) {
     const cell = ws.getCell(5, c);
     cell.fill = fillGreen; cell.border = allBorders;
   }
 
-  // ── Row 7: Candidate name headers ──────────────────────────────────────────
-  sc(7, 4, 'Nombre', fnt(10,true), fillGreen, aln('center','center',true), allBorders);
-  cands.forEach((c, i) => {
-    sc(7, candColIdx(i), c.nombre||'', fnt(10,true), fillWhite, aln('center','center',true), allBorders);
-  });
+  // ── Row 7: Candidate name headers (centered) ───────────────────────────────
+  sc(7, 4, 'Nombre', fntLbl(), fillGreen, alnCC(), allBorders);
+  cands.forEach((c, i) => sc(7, candColIdx(i), c.nombre||'', fnt(10,true), fillWhite, alnCC(), allBorders));
 
   // ── INFORMACION GENERAL rows 7-10 ──────────────────────────────────────────
   secLabel(7, 10, 'INFORMACION\nGENERAL');
-  fieldRow(8,  'Edad',                  cands.map(c=>c.edad),      'left', true);
-  fieldRow(9,  'Ciudad',                cands.map(c=>c.ciudad),    'left', true);
-  fieldRow(10, 'Educación /\nFormación',cands.map(c=>c.formacion), 'left', true);
+  fieldRow(8,  'Edad',                  cands.map(c=>c.edad),       fntVal(false), alnCC());
+  fieldRow(9,  'Ciudad',                cands.map(c=>c.ciudad),     fntVal(false), alnCC());
+  fieldRow(10, 'Educación /\nFormación',cands.map(c=>c.formacion),  fntVal(false), alnLC());
 
   // ── INFORMACION LABORAL rows 12-14 ─────────────────────────────────────────
   secLabel(12, 14, 'INFORMACION\nLABORAL');
-  fieldRow(12, 'Cargo actual /\nÚltimo Cargo',  cands.map(c=>c.cargo_actual),   'left', true);
-  fieldRow(13, 'Otras Empresas\nRelevantes',     cands.map(c=>c.otras_empresas), 'left', true);
-  fieldRow(14, 'Estado Laboral',                 cands.map(c=>c.estado_laboral), 'left', true);
+  fieldRow(12, 'Cargo actual /\nÚltimo Cargo',  cands.map(c=>c.cargo_actual),   fntVal(false), alnLC());
+  fieldRow(13, 'Otras Empresas\nRelevantes',    cands.map(c=>c.otras_empresas), fntVal(false), alnLC());
+  fieldRow(14, 'Estado Laboral',                cands.map(c=>c.estado_laboral), fntVal(false), alnCC());
 
   // ── CONDICIONES LABORALES rows 16-17 ──────────────────────────────────────
   secLabel(16, 17, 'CONDICIONES\nLABORALES');
-  fieldRow(16, 'Renta Estimada Liq.', cands.map(c=>c.renta_estimada),  'left', true);
-  fieldRow(17, 'Disponibilidad',      cands.map(c=>c.disponibilidad),  'left', true);
+  fieldRow(16, 'Renta Estimada Liq.', cands.map(c=>c.renta_estimada), fntVal(false), alnCC());
+  fieldRow(17, 'Disponibilidad',      cands.map(c=>c.disponibilidad), fntVal(false), alnCC());
 
   // ── INFORME PSICOLABORAL rows 19-23 ────────────────────────────────────────
   secLabel(19, 23, 'INFORME\nPSICOLABORAL');
-  fieldRow(19, 'Ajuste al Cargo',             cands.map(c=>c.ajuste_cargo),  'center', true);
-  fieldRow(20, 'Fortalezas de\ncompetencias', cands.map(c=>c.competencias||''), 'left', true);
-  fieldRow(21, 'Áreas de\ndesarrollo',        cands.map(c=>c.debilidades||''),  'left', true);
-  // Row 22: Gráfico (images injected later)
-  sc(22, 4, 'Gráfico de\nCompetencias', fnt(10,true), fillGreen, aln('center','center',true), allBorders);
-  cands.forEach((_, i) => sc(22, candColIdx(i), '', fnt(9,false), fillWhite, aln('center','center',false), allBorders));
-  fieldRow(23, 'Sugerencias', cands.map(c=>c.sugerencias||''), 'left', true);
 
-  // ── Embed chart images as base64 in row 22 ────────────────────────────────
+  // Ajuste al cargo — sz9, negrita, centrado
+  fieldRow(19, 'Ajuste al Cargo', cands.map(c=>c.ajuste_cargo), fntVal(true), alnCC());
+
+  // Fortalezas — sz9, izquierda+arriba
+  fieldRow(20, 'Fortalezas de\ncompetencias', cands.map(c=>c.competencias||''), fntVal(false), alnLT());
+
+  // Áreas de desarrollo — sz9, izquierda+arriba
+  fieldRow(21, 'Áreas de\ndesarrollo', cands.map(c=>c.debilidades||''), fntVal(false), alnLT());
+
+  // Gráfico — images injected later
+  sc(22, 4, 'Gráfico de\nCompetencias', fntLbl(), fillGreen, alnCC(), allBorders);
+  cands.forEach((_, i) => sc(22, candColIdx(i), '', fntVal(false), fillWhite, alnCC(), allBorders));
+
+  // Sugerencias — sz9, izquierda+arriba
+  fieldRow(23, 'Sugerencias', cands.map(c=>c.sugerencias||''), fntVal(false), alnLT());
+
+  // ── Chart images (row 22) ──────────────────────────────────────────────────
   for (let i = 0; i < cands.length; i++) {
     const b64 = cands[i]._chartB64;
     if (!b64) continue;
     try {
       const imgId = wb.addImage({ base64: b64, extension: 'png' });
-      const colLetter = String.fromCharCode(64 + candColIdx(i)); // col letter
       ws.addImage(imgId, {
-        tl: { col: candColIdx(i) - 1, row: 21 },  // 0-based: row 22 = index 21
+        tl: { col: candColIdx(i) - 1, row: 21 },
         br: { col: candColIdx(i),     row: 22 },
         editAs: 'oneCell'
       });
-    } catch(e) {
-      console.warn('Chart image error:', e);
-    }
+    } catch(e) { console.warn('Chart image error:', e); }
   }
 
-  // ── Embed Puelche logo (rows 1-4, col B) ──────────────────────────────────
+  // ── Puelche logo (rows 1-4, col B) ────────────────────────────────────────
   try {
     const logoId = wb.addImage({ base64: LOGO_B64, extension: 'png' });
-    ws.addImage(logoId, {
-      tl: { col: 1, row: 0 },   // B1 (0-based)
-      br: { col: 2, row: 4 },
-      editAs: 'oneCell'
-    });
+    ws.addImage(logoId, { tl:{ col:1, row:0 }, br:{ col:2, row:4 }, editAs:'oneCell' });
   } catch(e) { console.warn('Logo error:', e); }
 
-  // ── Generate and download ──────────────────────────────────────────────────
+  // ── Generate & download ────────────────────────────────────────────────────
   const buffer = await wb.xlsx.writeBuffer();
   const blob   = new Blob([buffer], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   const url    = URL.createObjectURL(blob);
   const safeT  = (document.getElementById('titleInput').value || 'Consolidado')
     .replace(/[^\w\s\-]/g,'').replace(/\s+/g,'_').slice(0,50);
-  S.filename   = `Consolidado_${safeT}_${new Date().toISOString().slice(0,10)}.xlsx`;
+  S.filename = `Consolidado_${safeT}_${new Date().toISOString().slice(0,10)}.xlsx`;
   const a = document.createElement('a');
   a.href = url; a.download = S.filename;
   document.body.appendChild(a); a.click();
