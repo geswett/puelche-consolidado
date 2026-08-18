@@ -127,7 +127,7 @@
   <p class="notice">⚠ Documento confidencial — uso exclusivo interno Puelche HC.</p>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 const LOGO_B64 = "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";
@@ -303,8 +303,7 @@ Claves requeridas (usa "" si no aparece el dato):
 }
 
 // ─── Main process ─────────────────────────────────────────────────────────────
-runBtn.addEventListener('click', async () => {
-  runBtn.disabled = true;
+runBtn.addEventListener('click', async () => {  runBtn.disabled = true;
   spin.style.display = 'inline-block';
   runTxt.textContent = 'Procesando…';
   S.results = []; S.xlsxData = null;
@@ -346,7 +345,7 @@ runBtn.addEventListener('click', async () => {
   setProg(90, 'Construyendo Excel…');
   log('Generando Excel…', 'i');
   try {
-    buildExcel();
+    await buildExcel();
     setProg(100, `✓ ${S.results.length} candidato(s) listos`);
     log('Excel generado', 'ok');
     renderPreview();
@@ -358,295 +357,180 @@ runBtn.addEventListener('click', async () => {
   spin.style.display = 'none'; runTxt.textContent = '⚡ Procesar y Generar Excel'; runBtn.disabled = false;
 });
 
-// ─── Build Excel (Salfa Sur format) ─────────────────────────────────────────
-function buildExcel() {
+// ─── Build & Download Excel (ExcelJS — Salfa Sur format) ────────────────────
+async function buildExcel() {
   const cands = S.results, n = cands.length;
   const TITLE = (document.getElementById('titleInput').value || 'FINALISTAS').toUpperCase();
-  const FONT  = 'Calibri';
 
-  // Colors from Salfa Sur target
-  const GREEN  = 'C2D69B';   // section + field label bg (light olive green)
-  const WHITE  = 'FFFFFF';
-  const FCOL   = '434343';   // font color (dark gray)
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet('Consolidado Finalistas');
 
-  const thin   = { style:'thin', color:{ rgb:'000000' } };
-  const brd    = { top:thin, bottom:thin, left:thin, right:thin };
-  const ACC    = { horizontal:'center', vertical:'center', wrapText:true };
-  const ALV    = { horizontal:'left',   vertical:'center', wrapText:true };
-  const ALT    = { horizontal:'left',   vertical:'top',    wrapText:true };
-  const fGreen = { patternType:'solid', fgColor:{ rgb:GREEN } };
-  const fWhite = { patternType:'solid', fgColor:{ rgb:WHITE } };
+  // ── Colors & styles ────────────────────────────────────────────────────────
+  const GREEN  = 'FFC2D69B';  // olive green (section + field label bg)
+  const WHITE  = 'FFFFFFFF';
+  const FCOL   = 'FF434343';  // dark gray font
 
-  // Font helpers
-  const fH = (sz, bold) => ({ name:FONT, sz, bold:!!bold, color:{ rgb:FCOL } });
+  const thinB = { style:'thin', color:{ argb:'FF000000' } };
+  const allBorders = { top:thinB, left:thinB, bottom:thinB, right:thinB };
 
-  const wb = XLSX.utils.book_new();
-  const ws = {};
+  const fillGreen = { type:'pattern', pattern:'solid', fgColor:{ argb:GREEN } };
+  const fillWhite = { type:'pattern', pattern:'solid', fgColor:{ argb:WHITE } };
 
-  // Column layout (matches Salfa Sur exactly):
-  // A=margin, B=section, C=spacer, D=field, E=spacer, F=cand1, G=spacer, H=cand2, I=spacer...
-  // Candidate columns: F(5), H(7), J(9), L(11), N(13)...
-  // Each candidate occupies one even column (0-based: 5,7,9,11...)
-  function candCol(i) { return 5 + i * 2; }  // 0-based col index
-
-  const lastCandCol = candCol(n - 1);
-  const lastColLetter = XLSX.utils.encode_col(lastCandCol);
-
-  function sc(r, c, val, font, fill, align, border) {
-    const ref = XLSX.utils.encode_cell({ r, c });
-    ws[ref] = { v: val||'', t:'s' };
-    const s = {};
-    if (font)   s.font      = font;
-    if (fill)   s.fill      = fill;
-    if (align)  s.alignment = align;
-    if (border) s.border    = border;
-    if (Object.keys(s).length) ws[ref].s = s;
+  function fnt(sz, bold) {
+    return { name:'Calibri', size:sz, bold:!!bold, color:{ argb:FCOL } };
+  }
+  function aln(h, v, wrap) {
+    return { horizontal:h||'left', vertical:v||'center', wrapText:!!wrap };
   }
 
-  // Fill section label col B with green for a row range
-  function secLabel(r1, r2, label) {
-    sc(r1, 1, label, fH(10,true), fGreen, ACC, brd);
-    for (let r = r1+1; r <= r2; r++) {
-      const ref = XLSX.utils.encode_cell({ r, c:1 });
-      ws[ref] = { v:'', s:{ fill:fGreen, border:brd } };
-    }
-  }
+  // ── Column layout ──────────────────────────────────────────────────────────
+  // A=margin, B=section, C=spacer, D=field, E=spacer, F=cand1, G=spacer, H=cand2...
+  // Candidate col index (1-based): 6, 8, 10, 12, 14 ...
+  function candColIdx(i) { return 6 + i * 2; }
 
-  // Write a field label (col D) + candidate values
-  function fieldRow(r, label, values, valAlign) {
-    sc(r, 3, label, fH(10,true), fGreen, ACC, brd);
-    values.forEach((val, i) => sc(r, candCol(i), val||'', fH(10,false), fWhite, valAlign||ALV, brd));
-  }
-
-  // ── Row 4 (idx 4): Title bar spanning B to last candidate col ───────────────
-  sc(4, 1, `FINALISTAS — ${TITLE}`, fH(10,true), fGreen, ACC, brd);
-  for (let c = 2; c <= lastCandCol; c++) {
-    const ref = XLSX.utils.encode_cell({ r:4, c });
-    ws[ref] = { v:'', s:{ fill:fGreen, border:brd } };
-  }
-
-  // ── Row 6 (idx 6): Candidate name headers ───────────────────────────────────
-  // Section label col B merged with rows below
-  sc(6, 3, 'Nombre', fH(10,true), fGreen, ACC, brd);
-  cands.forEach((c, i) => sc(6, candCol(i), c.nombre||'', fH(10,true), fWhite, ACC, brd));
-
-  // ── INFORMACION GENERAL: rows 6-9 (idx 6-9), section B6:B9 ─────────────────
-  secLabel(6, 9, 'INFORMACION\nGENERAL');
-  fieldRow(7,  'Edad',                 cands.map(c => c.edad),      ALV);
-  fieldRow(8,  'Ciudad',               cands.map(c => c.ciudad),    ALV);
-  fieldRow(9,  'Educación /\nFormación',cands.map(c => c.formacion), ALV);
-
-  // ── INFORMACION LABORAL: rows 11-13 (idx 11-13), section B11:B13 ────────────
-  secLabel(11, 13, 'INFORMACION\nLABORAL');
-  fieldRow(11, 'Cargo actual /\nÚltimo Cargo',   cands.map(c => c.cargo_actual),   ALV);
-  fieldRow(12, 'Otras Empresas\nRelevantes',      cands.map(c => c.otras_empresas), ALV);
-  fieldRow(13, 'Estado Laboral',                  cands.map(c => c.estado_laboral), ALV);
-
-  // ── CONDICIONES LABORALES: rows 15-16 (idx 15-16), section B15:B16 ──────────
-  secLabel(15, 16, 'CONDICIONES\nLABORALES');
-  fieldRow(15, 'Renta Estimada Liq.',  cands.map(c => c.renta_estimada),  ALV);
-  fieldRow(16, 'Disponibilidad',       cands.map(c => c.disponibilidad),  ALV);
-
-  // ── INFORME PSICOLABORAL: rows 18-22 (idx 18-22), section B18:B22 ───────────
-  secLabel(18, 22, 'INFORME\nPSICOLABORAL');
-  fieldRow(18, 'Ajuste al Cargo',          cands.map(c => c.ajuste_cargo),  ACC);
-  fieldRow(19, 'Fortalezas de\ncompetencias', cands.map(c => c.competencias||''), ALT);
-  fieldRow(20, 'Áreas de\ndesarrollo',      cands.map(c => c.debilidades||''),   ALT);
-  // Row 21: Gráfico (image overlay)
-  sc(21, 3, 'Gráfico de\nCompetencias', fH(10,true), fGreen, ACC, brd);
-  cands.forEach((_, i) => sc(21, candCol(i), '', fH(9,false), fWhite, ACC, brd));
-  // Row 22: Sugerencias  
-  fieldRow(22, 'Sugerencias', cands.map(c => c.sugerencias||''), ALT);
-
-  // ── Sheet metadata ──────────────────────────────────────────────────────────
-  ws['!ref'] = XLSX.utils.encode_range({ s:{r:0,c:0}, e:{r:23, c:lastCandCol} });
-
-  // Column widths matching Salfa Sur exactly
-  const cols = [
-    { wch:3.0  },   // A: margin
-    { wch:18.0 },   // B: section labels
-    { wch:1.71 },   // C: spacer
-    { wch:17.86},   // D: field labels
-    { wch:2.0  },   // E: spacer
+  ws.columns = [
+    { width: 3.0  },  // A
+    { width: 18.0 },  // B  section labels
+    { width: 1.71 },  // C  spacer
+    { width: 17.86},  // D  field labels
+    { width: 2.0  },  // E  spacer
+    ...Array.from({length: n}, (_, i) => [
+      { width: 44.0 },                           // candidate col
+      ...(i < n-1 ? [{ width: 2.0 }] : [])      // spacer (not after last)
+    ]).flat()
   ];
-  for (let i = 0; i < n; i++) {
-    cols.push({ wch:44.0 });   // candidate column
-    if (i < n-1) cols.push({ wch:2.0 }); // spacer between candidates
-  }
-  ws['!cols'] = cols;
 
-  // Row heights matching Salfa Sur
-  const RH = {
-    4:24,    // title
-    5:13.5,  // spacer
-    6:18,    // Nombre / section header
-    7:12.75, // Edad
-    8:12.75, // Ciudad
-    9:52.5,  // Educación (taller for wrapping)
-    10:10.5, // spacer
-    11:39.75,// Cargo
-    12:31.5, // Otras empresas
-    13:15.75,// Estado laboral
-    14:10.5, // spacer
-    15:15.75,// Renta
-    16:15.75,// Disponibilidad
-    17:15.0, // spacer
-    18:15.75,// Ajuste al cargo
-    19:70.5, // Fortalezas
-    20:106.5,// Áreas de desarrollo
-    21:117.75,// Gráfico
-    22:120.0, // Sugerencias
+  // ── Row heights ────────────────────────────────────────────────────────────
+  const rowHeights = {
+    4: 24,   5: 13.5, 6: 18,   7: 12.75, 8: 12.75, 9: 52.5,
+    10: 10.5, 11: 39.75, 12: 31.5, 13: 15.75,
+    14: 10.5, 15: 15.75, 16: 15.75,
+    17: 15.0, 18: 15.75, 19: 70.5, 20: 106.5, 21: 117.75, 22: 120.0
   };
-  ws['!rows'] = Array.from({ length:24 }, (_, i) => RH[i] ? { hpt:RH[i] } : null);
-
-  // Merges: section col B + title
-  ws['!merges'] = [
-    { s:{r:4,c:1},  e:{r:4,c:lastCandCol}  },  // title bar
-    { s:{r:6,c:1},  e:{r:9,c:1}            },  // INFO GENERAL
-    { s:{r:11,c:1}, e:{r:13,c:1}           },  // INFO LABORAL
-    { s:{r:15,c:1}, e:{r:16,c:1}           },  // CONDICIONES
-    { s:{r:18,c:1}, e:{r:22,c:1}           },  // INFORME PSICO
-  ];
-
-  XLSX.utils.book_append_sheet(wb, ws, 'Consolidado Finalistas');
-
-  // Store chart images for injection (one per candidate)
-  S._chartImages = cands.map(c => c._chartB64 || null);
-  // Store candidate col indices for drawing injection
-  S._candCols = cands.map((_, i) => candCol(i));
-
-  S.xlsxData = XLSX.write(wb, { bookType:'xlsx', type:'array', cellStyles:true });
-  const safeT = (document.getElementById('titleInput').value || 'Consolidado')
-    .replace(/[^\w\s\-]/g,'').replace(/\s+/g,'_').slice(0,50);
-  S.filename = `Consolidado_${safeT}_${new Date().toISOString().slice(0,10)}.xlsx`;
-}
-
-
-// ─── Download: inject images into the xlsx zip ────────────────────────────────
-async function doDownload() {
-  if (!S.xlsxData) { alert('Procesa los PDFs primero.'); return; }
-  let final = S.xlsxData;
-
-  try {
-    const JSZip = await loadJSZip();
-    const zip   = await JSZip.loadAsync(S.xlsxData);
-    const refs  = [];
-
-    // Chart images → row 21 (0-based index 21 = Gráfico de Competencias row)
-    const candCols = S._candCols || S._chartImages.map((_,i) => 5 + i*2);
-    for (let i = 0; i < S._chartImages.length; i++) {
-      const b64 = S._chartImages[i]; if (!b64) continue;
-      const id  = i + 1;
-      zip.file(`xl/media/chart_${i}.png`, b64, { base64:true });
-      zip.file(`xl/drawings/drawing${id}.xml`,       drawImgXml(id, candCols[i], 21));
-      zip.file(`xl/drawings/_rels/drawing${id}.xml.rels`, drawRels(`chart_${i}`));
-      refs.push({ id, rid:`rDr${id}` });
-    }
-
-    // Puelche logo → rows 0-3, col B(1)
-    const lid = S._chartImages.length + 1;
-    zip.file('xl/media/logo.png', LOGO_B64, { base64:true });
-    zip.file(`xl/drawings/drawing${lid}.xml`,        drawLogoXml(lid));
-    zip.file(`xl/drawings/_rels/drawing${lid}.xml.rels`, drawRels('logo'));
-    refs.push({ id:lid, rid:`rDr${lid}` });
-
-    // Patch sheet relationships
-    const sRelPath = 'xl/worksheets/_rels/sheet1.xml.rels';
-    let sRel = await zip.file(sRelPath)?.async('string').catch(() => '') || '';
-    if (!sRel.includes('<Relationships'))
-      sRel = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`;
-    else sRel = sRel.replace('</Relationships>', '');
-    refs.forEach(({ id, rid }) => {
-      if (!sRel.includes(`drawing${id}.xml`))
-        sRel += `\n  <Relationship Id="${rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing${id}.xml"/>`;
-    });
-    sRel += '\n</Relationships>';
-    zip.file(sRelPath, sRel);
-
-    // Patch sheet1.xml
-    let sXml = await zip.file('xl/worksheets/sheet1.xml').async('string');
-    if (!sXml.includes('xmlns:r='))
-      sXml = sXml.replace('<worksheet ', `<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" `);
-    let tags = '';
-    refs.forEach(({ rid }) => { if (!sXml.includes(rid)) tags += `<drawing r:id="${rid}"/>`; });
-    if (tags) sXml = sXml.replace('</worksheet>', tags + '</worksheet>');
-    zip.file('xl/worksheets/sheet1.xml', sXml);
-
-    // Patch [Content_Types].xml
-    let ct = await zip.file('[Content_Types].xml').async('string');
-    if (!ct.includes('image/png'))
-      ct = ct.replace('</Types>', `  <Default Extension="png" ContentType="image/png"/>\n</Types>`);
-    refs.forEach(({ id }) => {
-      if (!ct.includes(`drawing${id}.xml`))
-        ct = ct.replace('</Types>', `  <Override PartName="/xl/drawings/drawing${id}.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>\n</Types>`);
-    });
-    zip.file('[Content_Types].xml', ct);
-
-    final = await zip.generateAsync({ type:'arraybuffer', compression:'DEFLATE', compressionOptions:{ level:6 } });
-    log(`✓ ${S._chartImages.filter(Boolean).length} gráfico(s) + logo insertados`, 'ok');
-  } catch(e) {
-    console.warn('Image injection failed:', e);
-    log(`Aviso: imágenes no insertadas — ${e.message}`, 'i');
+  for (let r = 1; r <= 23; r++) {
+    ws.getRow(r).height = rowHeights[r] || 15;
   }
 
-  const blob = new Blob([final], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement('a'); a.href = url; a.download = S.filename;
+  // ── Helper: style one cell ─────────────────────────────────────────────────
+  function sc(row, col, value, font, fill, alignment, border) {
+    const cell = ws.getCell(row, col);
+    cell.value = value || '';
+    if (font)      cell.font      = font;
+    if (fill)      cell.fill      = fill;
+    if (alignment) cell.alignment = alignment;
+    if (border)    cell.border    = border;
+  }
+
+  // ── Helper: write a section label (col B, spanning r1..r2) ────────────────
+  function secLabel(r1, r2, label) {
+    sc(r1, 2, label, fnt(10,true), fillGreen, aln('center','center',true), allBorders);
+    ws.mergeCells(r1, 2, r2, 2);
+    // Fill merged cells below
+    for (let r = r1+1; r <= r2; r++) {
+      const c = ws.getCell(r, 2);
+      c.fill = fillGreen; c.border = allBorders;
+    }
+  }
+
+  // ── Helper: write a field row (col D label + candidate values) ─────────────
+  function fieldRow(r, label, values, valH, valWrap) {
+    sc(r, 4, label, fnt(10,true), fillGreen, aln('center','center',true), allBorders);
+    values.forEach((val, i) => {
+      sc(r, candColIdx(i), val||'', fnt(10,false), fillWhite,
+         aln(valH||'left','center',valWrap!==false), allBorders);
+    });
+  }
+
+  // ── Row 5: Title bar ───────────────────────────────────────────────────────
+  const lastCandCol = candColIdx(n-1);
+  sc(5, 2, `FINALISTAS — ${TITLE}`, fnt(10,true), fillGreen, aln('center','center',true), allBorders);
+  ws.mergeCells(5, 2, 5, lastCandCol);
+  for (let c = 3; c <= lastCandCol; c++) {
+    const cell = ws.getCell(5, c);
+    cell.fill = fillGreen; cell.border = allBorders;
+  }
+
+  // ── Row 7: Candidate name headers ──────────────────────────────────────────
+  sc(7, 4, 'Nombre', fnt(10,true), fillGreen, aln('center','center',true), allBorders);
+  cands.forEach((c, i) => {
+    sc(7, candColIdx(i), c.nombre||'', fnt(10,true), fillWhite, aln('center','center',true), allBorders);
+  });
+
+  // ── INFORMACION GENERAL rows 7-10 ──────────────────────────────────────────
+  secLabel(7, 10, 'INFORMACION\nGENERAL');
+  fieldRow(8,  'Edad',                  cands.map(c=>c.edad),      'left', true);
+  fieldRow(9,  'Ciudad',                cands.map(c=>c.ciudad),    'left', true);
+  fieldRow(10, 'Educación /\nFormación',cands.map(c=>c.formacion), 'left', true);
+
+  // ── INFORMACION LABORAL rows 12-14 ─────────────────────────────────────────
+  secLabel(12, 14, 'INFORMACION\nLABORAL');
+  fieldRow(12, 'Cargo actual /\nÚltimo Cargo',  cands.map(c=>c.cargo_actual),   'left', true);
+  fieldRow(13, 'Otras Empresas\nRelevantes',     cands.map(c=>c.otras_empresas), 'left', true);
+  fieldRow(14, 'Estado Laboral',                 cands.map(c=>c.estado_laboral), 'left', true);
+
+  // ── CONDICIONES LABORALES rows 16-17 ──────────────────────────────────────
+  secLabel(16, 17, 'CONDICIONES\nLABORALES');
+  fieldRow(16, 'Renta Estimada Liq.', cands.map(c=>c.renta_estimada),  'left', true);
+  fieldRow(17, 'Disponibilidad',      cands.map(c=>c.disponibilidad),  'left', true);
+
+  // ── INFORME PSICOLABORAL rows 19-23 ────────────────────────────────────────
+  secLabel(19, 23, 'INFORME\nPSICOLABORAL');
+  fieldRow(19, 'Ajuste al Cargo',             cands.map(c=>c.ajuste_cargo),  'center', true);
+  fieldRow(20, 'Fortalezas de\ncompetencias', cands.map(c=>c.competencias||''), 'left', true);
+  fieldRow(21, 'Áreas de\ndesarrollo',        cands.map(c=>c.debilidades||''),  'left', true);
+  // Row 22: Gráfico (images injected later)
+  sc(22, 4, 'Gráfico de\nCompetencias', fnt(10,true), fillGreen, aln('center','center',true), allBorders);
+  cands.forEach((_, i) => sc(22, candColIdx(i), '', fnt(9,false), fillWhite, aln('center','center',false), allBorders));
+  fieldRow(23, 'Sugerencias', cands.map(c=>c.sugerencias||''), 'left', true);
+
+  // ── Embed chart images as base64 in row 22 ────────────────────────────────
+  for (let i = 0; i < cands.length; i++) {
+    const b64 = cands[i]._chartB64;
+    if (!b64) continue;
+    try {
+      const imgId = wb.addImage({ base64: b64, extension: 'png' });
+      const colLetter = String.fromCharCode(64 + candColIdx(i)); // col letter
+      ws.addImage(imgId, {
+        tl: { col: candColIdx(i) - 1, row: 21 },  // 0-based: row 22 = index 21
+        br: { col: candColIdx(i),     row: 22 },
+        editAs: 'oneCell'
+      });
+    } catch(e) {
+      console.warn('Chart image error:', e);
+    }
+  }
+
+  // ── Embed Puelche logo (rows 1-4, col B) ──────────────────────────────────
+  try {
+    const logoId = wb.addImage({ base64: LOGO_B64, extension: 'png' });
+    ws.addImage(logoId, {
+      tl: { col: 1, row: 0 },   // B1 (0-based)
+      br: { col: 2, row: 4 },
+      editAs: 'oneCell'
+    });
+  } catch(e) { console.warn('Logo error:', e); }
+
+  // ── Generate and download ──────────────────────────────────────────────────
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob   = new Blob([buffer], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url    = URL.createObjectURL(blob);
+  const safeT  = (document.getElementById('titleInput').value || 'Consolidado')
+    .replace(/[^\w\s\-]/g,'').replace(/\s+/g,'_').slice(0,50);
+  S.filename   = `Consolidado_${safeT}_${new Date().toISOString().slice(0,10)}.xlsx`;
+  const a = document.createElement('a');
+  a.href = url; a.download = S.filename;
   document.body.appendChild(a); a.click();
   setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+  log('✓ Excel descargado', 'ok');
 }
 
-// ─── Drawing XML helpers ──────────────────────────────────────────────────────
-function drawImgXml(id, colIdx, rowIdx) {
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"
-  xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
-  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-  <xdr:twoCellAnchor editAs="oneCell">
-    <xdr:from><xdr:col>${colIdx}</xdr:col><xdr:colOff>50000</xdr:colOff><xdr:row>${rowIdx}</xdr:row><xdr:rowOff>50000</xdr:rowOff></xdr:from>
-    <xdr:to><xdr:col>${colIdx+1}</xdr:col><xdr:colOff>-50000</xdr:colOff><xdr:row>${rowIdx+1}</xdr:row><xdr:rowOff>-50000</xdr:rowOff></xdr:to>
-    <xdr:pic>
-      <xdr:nvPicPr><xdr:cNvPr id="${20+id}" name="Chart${id}"/><xdr:cNvPicPr><a:picLocks noChangeAspect="0"/></xdr:cNvPicPr></xdr:nvPicPr>
-      <xdr:blipFill><a:blip r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>
-      <xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr>
-    </xdr:pic>
-    <xdr:clientData/>
-  </xdr:twoCellAnchor>
-</xdr:wsDr>`;
+// ─── doDownload just calls buildExcel ────────────────────────────────────────
+async function doDownload() {
+  if (!S.results.length) { alert('Procesa los PDFs primero.'); return; }
+  try { await buildExcel(); }
+  catch(e) { log(`Error Excel: ${e.message}`, 'err'); console.error(e); }
 }
-function drawLogoXml(id) {
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"
-  xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
-  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
-  <xdr:twoCellAnchor editAs="oneCell">
-    <xdr:from><xdr:col>1</xdr:col><xdr:colOff>114300</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>114300</xdr:rowOff></xdr:from>
-    <xdr:to><xdr:col>2</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>3</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:to>
-    <xdr:pic>
-      <xdr:nvPicPr><xdr:cNvPr id="${10+id}" name="Logo"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr>
-      <xdr:blipFill><a:blip r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>
-      <xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="1104900" cy="855675"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr>
-    </xdr:pic>
-    <xdr:clientData/>
-  </xdr:twoCellAnchor>
-</xdr:wsDr>`;
-}
-function drawRels(imgName) {
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
-  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/${imgName}.png"/>
-</Relationships>`;
-}
-function loadJSZip() {
-  return new Promise((res, rej) => {
-    if (window.JSZip) { res(window.JSZip); return; }
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
-    s.onload = () => res(window.JSZip);
-    s.onerror = () => rej(new Error('JSZip no disponible'));
-    document.head.appendChild(s);
-  });
-}
+
 
 // ─── Preview table ────────────────────────────────────────────────────────────
 function renderPreview() {
