@@ -366,53 +366,85 @@ async function buildExcel() {
   const ws = wb.addWorksheet('Consolidado Finalistas');
 
   // ── Colors ─────────────────────────────────────────────────────────────────
-  const GREEN      = 'FFC2D69B';   // section/field label bg
+  const GREEN      = 'FFC2D69B';
   const WHITE      = 'FFFFFFFF';
-  const FCOL       = 'FF434343';   // font color dark gray
-  const BORDER_COL = 'FF9BBB59';   // green border #9BBB59
+  const FCOL       = 'FF434343';
+  const BORDER_COL = 'FF9BBB59';
 
   const thinB      = { style:'thin', color:{ argb: BORDER_COL } };
   const allBorders = { top:thinB, left:thinB, bottom:thinB, right:thinB };
-
   const fillGreen  = { type:'pattern', pattern:'solid', fgColor:{ argb: GREEN } };
   const fillWhite  = { type:'pattern', pattern:'solid', fgColor:{ argb: WHITE } };
 
-  // Font helpers
-  function fnt(sz, bold)  { return { name:'Calibri', size:sz, bold:!!bold, color:{ argb:FCOL } }; }
-  function fntVal(bold)   { return fnt(9, bold); }   // value cells always size 9
-  function fntLbl()       { return fnt(10, true); }  // label cells size 10 bold
+  // ── Font helpers ────────────────────────────────────────────────────────────
+  function fnt(sz, bold) { return { name:'Calibri', size:sz, bold:!!bold, color:{ argb:FCOL } }; }
+  function fntLbl()      { return fnt(10, true);  }
+  function fntVal(bold)  { return fnt(9,  bold);  }
 
-  // Alignment helpers
+  // ── Alignment helpers ───────────────────────────────────────────────────────
+  // Titles col B (section, merged): center horizontally, center vertically
   function alnCC()  { return { horizontal:'center', vertical:'center', wrapText:true }; }
-  function alnLT()  { return { horizontal:'left',   vertical:'top',    wrapText:true }; }
-  function alnLC()  { return { horizontal:'left',   vertical:'center', wrapText:true }; }
+  // Titles col D (field labels): center horizontally, center vertically
+  function alnDC()  { return { horizontal:'center', vertical:'center', wrapText:true }; }
+  // Value cells: left + top (text-heavy) or center
+  function alnLT()  { return { horizontal:'left', vertical:'top',    wrapText:true }; }
+  function alnLC()  { return { horizontal:'left', vertical:'center', wrapText:true }; }
+  function alnCenC(){ return { horizontal:'center',vertical:'center',wrapText:true }; }
 
-  // ── Column layout ──────────────────────────────────────────────────────────
-  // A=margin, B=section, C=spacer, D=field, E=spacer, F=cand1, G=spacer, H=cand2...
-  function candColIdx(i) { return 6 + i * 2; }  // 1-based
+  // ── Column layout ───────────────────────────────────────────────────────────
+  function candColIdx(i) { return 6 + i * 2; }
 
   ws.columns = [
-    { width: 3.0   },  // A
-    { width: 18.0  },  // B  section labels
-    { width: 1.71  },  // C  spacer
-    { width: 17.86 },  // D  field labels
-    { width: 2.0   },  // E  spacer
+    { width: 3.0   },   // A
+    { width: 18.0  },   // B  section labels
+    { width: 1.71  },   // C  spacer
+    { width: 17.86 },   // D  field labels
+    { width: 2.0   },   // E  spacer
     ...Array.from({length: n}, (_, i) => [
       { width: 44.0 },
       ...(i < n-1 ? [{ width: 2.0 }] : [])
     ]).flat()
   ];
 
-  // ── Row heights ────────────────────────────────────────────────────────────
-  const rowHeights = {
-    4:24, 5:13.5, 6:18, 7:12.75, 8:12.75, 9:52.5,
-    10:10.5, 11:39.75, 12:31.5, 13:15.75,
-    14:10.5, 15:15.75, 16:15.75,
-    17:15.0, 18:15.75, 19:70.5, 20:90, 21:105, 22:120
-  };
-  for (let r = 1; r <= 23; r++) ws.getRow(r).height = rowHeights[r] || 15;
+  // ── Row height calculator ───────────────────────────────────────────────────
+  // Estimates height based on text length and column width (chars)
+  // Returns points (1 Excel row ≈ 15pt for 1 line of sz9/10)
+  function calcHeight(texts, colWidthChars, fontSize, minH, fixedH) {
+    if (fixedH) return fixedH;
+    const lineH   = fontSize <= 9 ? 13 : 15;  // pts per line
+    const charsPerLine = colWidthChars * 1.3;  // rough chars per line
+    let maxLines = 1;
+    for (const t of texts) {
+      if (!t) continue;
+      // Count bullet points as separate paragraphs
+      const bullets = t.split('\n').filter(l => l.trim());
+      let lines = 0;
+      for (const b of bullets) {
+        lines += Math.ceil(b.length / charsPerLine) + 0.3; // +0.3 gap between bullets
+      }
+      maxLines = Math.max(maxLines, lines);
+    }
+    return Math.max(minH, Math.ceil(maxLines) * lineH + 6);
+  }
 
-  // ── Cell writer ────────────────────────────────────────────────────────────
+  // ── Rich text builder: converts "• A — desc\n• B — desc" to ExcelJS richText ──
+  // Each bullet becomes a separate paragraph with a blank line between them
+  function richBullets(text, bold) {
+    if (!text) return '';
+    const f = { name:'Calibri', size:9, bold:!!bold, color:{ argb:FCOL } };
+    const bullets = text.split(/\n/).map(l => l.trim()).filter(Boolean);
+    if (bullets.length <= 1) return text;
+    const richText = [];
+    bullets.forEach((line, i) => {
+      richText.push({ font:f, text: line });
+      if (i < bullets.length - 1) {
+        richText.push({ font:f, text: '\n\n' });  // blank line between bullets
+      }
+    });
+    return { richText };
+  }
+
+  // ── Cell writer ─────────────────────────────────────────────────────────────
   function sc(row, col, value, font, fill, alignment, border) {
     const cell = ws.getCell(row, col);
     cell.value = value || '';
@@ -422,7 +454,7 @@ async function buildExcel() {
     if (border)    cell.border    = border;
   }
 
-  // ── Section label: col B, merged r1..r2, centered ─────────────────────────
+  // ── Section label (col B, merged, center/center) ────────────────────────────
   function secLabel(r1, r2, label) {
     sc(r1, 2, label, fntLbl(), fillGreen, alnCC(), allBorders);
     ws.mergeCells(r1, 2, r2, 2);
@@ -432,18 +464,23 @@ async function buildExcel() {
     }
   }
 
-  // ── Field row: col D (label, centered) + candidate value cells ────────────
-  function fieldRow(r, label, values, valFont, valAlign) {
-    sc(r, 4, label, fntLbl(), fillGreen, alnCC(), allBorders);
+  // ── Field row (col D center/center + candidate values) ──────────────────────
+  function fieldRow(r, label, values, valFont, valAlign, useBullets) {
+    sc(r, 4, label, fntLbl(), fillGreen, alnDC(), allBorders);
     values.forEach((val, i) => {
-      sc(r, candColIdx(i), val||'', valFont, fillWhite, valAlign, allBorders);
+      const cellVal = useBullets ? richBullets(val, valFont.bold) : (val||'');
+      const cell = ws.getCell(r, candColIdx(i));
+      cell.value     = cellVal;
+      cell.font      = valFont;
+      cell.fill      = fillWhite;
+      cell.alignment = valAlign;
+      cell.border    = allBorders;
     });
   }
 
-  // ── Last candidate column index ────────────────────────────────────────────
   const lastCandCol = candColIdx(n - 1);
 
-  // ── Row 5: Title bar ───────────────────────────────────────────────────────
+  // ── Row 5: Title ────────────────────────────────────────────────────────────
   sc(5, 2, `FINALISTAS — ${TITLE}`, fntLbl(), fillGreen, alnCC(), allBorders);
   ws.mergeCells(5, 2, 5, lastCandCol);
   for (let c = 3; c <= lastCandCol; c++) {
@@ -451,47 +488,67 @@ async function buildExcel() {
     cell.fill = fillGreen; cell.border = allBorders;
   }
 
-  // ── Row 7: Candidate name headers (centered) ───────────────────────────────
-  sc(7, 4, 'Nombre', fntLbl(), fillGreen, alnCC(), allBorders);
-  cands.forEach((c, i) => sc(7, candColIdx(i), c.nombre||'', fnt(10,true), fillWhite, alnCC(), allBorders));
+  // ── Row 7: Candidate name headers ───────────────────────────────────────────
+  sc(7, 4, 'Nombre', fntLbl(), fillGreen, alnDC(), allBorders);
+  cands.forEach((c, i) => sc(7, candColIdx(i), c.nombre||'', fnt(10,true), fillWhite, alnCenC(), allBorders));
 
-  // ── INFORMACION GENERAL rows 7-10 ──────────────────────────────────────────
+  // ── INFORMACION GENERAL rows 7-10 ───────────────────────────────────────────
   secLabel(7, 10, 'INFORMACION\nGENERAL');
-  fieldRow(8,  'Edad',                  cands.map(c=>c.edad),       fntVal(false), alnCC());
-  fieldRow(9,  'Ciudad',                cands.map(c=>c.ciudad),     fntVal(false), alnCC());
-  fieldRow(10, 'Educación /\nFormación',cands.map(c=>c.formacion),  fntVal(false), alnLC());
+  fieldRow(8,  'Edad',                  cands.map(c=>c.edad),      fntVal(false), alnCenC());
+  fieldRow(9,  'Ciudad',                cands.map(c=>c.ciudad),    fntVal(false), alnCenC());
+  fieldRow(10, 'Educación /\nFormación',cands.map(c=>c.formacion), fntVal(false), alnLC());
 
-  // ── INFORMACION LABORAL rows 12-14 ─────────────────────────────────────────
+  // ── INFORMACION LABORAL rows 12-14 ──────────────────────────────────────────
   secLabel(12, 14, 'INFORMACION\nLABORAL');
-  fieldRow(12, 'Cargo actual /\nÚltimo Cargo',  cands.map(c=>c.cargo_actual),   fntVal(false), alnLC());
-  fieldRow(13, 'Otras Empresas\nRelevantes',    cands.map(c=>c.otras_empresas), fntVal(false), alnLC());
-  fieldRow(14, 'Estado Laboral',                cands.map(c=>c.estado_laboral), fntVal(false), alnCC());
+  fieldRow(12, 'Cargo actual /\nÚltimo Cargo', cands.map(c=>c.cargo_actual),   fntVal(false), alnLC());
+  fieldRow(13, 'Otras Empresas\nRelevantes',   cands.map(c=>c.otras_empresas), fntVal(false), alnLC());
+  fieldRow(14, 'Estado Laboral',               cands.map(c=>c.estado_laboral), fntVal(false), alnCenC());
 
-  // ── CONDICIONES LABORALES rows 16-17 ──────────────────────────────────────
+  // ── CONDICIONES LABORALES rows 16-17 ────────────────────────────────────────
   secLabel(16, 17, 'CONDICIONES\nLABORALES');
-  fieldRow(16, 'Renta Estimada Liq.', cands.map(c=>c.renta_estimada), fntVal(false), alnCC());
-  fieldRow(17, 'Disponibilidad',      cands.map(c=>c.disponibilidad), fntVal(false), alnCC());
+  fieldRow(16, 'Renta Estimada Liq.', cands.map(c=>c.renta_estimada), fntVal(false), alnCenC());
+  fieldRow(17, 'Disponibilidad',      cands.map(c=>c.disponibilidad), fntVal(false), alnCenC());
 
-  // ── INFORME PSICOLABORAL rows 19-23 ────────────────────────────────────────
+  // ── INFORME PSICOLABORAL rows 19-23 ─────────────────────────────────────────
   secLabel(19, 23, 'INFORME\nPSICOLABORAL');
+  fieldRow(19, 'Ajuste al Cargo',             cands.map(c=>c.ajuste_cargo),    fntVal(true),  alnCenC());
+  fieldRow(20, 'Fortalezas de\ncompetencias', cands.map(c=>c.competencias||''), fntVal(false), alnLT(), true);
+  fieldRow(21, 'Áreas de\ndesarrollo',        cands.map(c=>c.debilidades||''),  fntVal(false), alnLT(), true);
 
-  // Ajuste al cargo — sz9, negrita, centrado
-  fieldRow(19, 'Ajuste al Cargo', cands.map(c=>c.ajuste_cargo), fntVal(true), alnCC());
+  // Gráfico
+  sc(22, 4, 'Gráfico de\nCompetencias', fntLbl(), fillGreen, alnDC(), allBorders);
+  cands.forEach((_, i) => sc(22, candColIdx(i), '', fntVal(false), fillWhite, alnCenC(), allBorders));
 
-  // Fortalezas — sz9, izquierda+arriba
-  fieldRow(20, 'Fortalezas de\ncompetencias', cands.map(c=>c.competencias||''), fntVal(false), alnLT());
+  fieldRow(23, 'Sugerencias', cands.map(c=>c.sugerencias||''), fntVal(false), alnLT(), true);
 
-  // Áreas de desarrollo — sz9, izquierda+arriba
-  fieldRow(21, 'Áreas de\ndesarrollo', cands.map(c=>c.debilidades||''), fntVal(false), alnLT());
+  // ── Variable row heights ─────────────────────────────────────────────────────
+  // Fixed rows
+  const fixedH = { 5:24, 6:6, 7:18, 8:14, 9:14, 10:14,
+                   11:6, 14:14, 15:6, 16:14, 17:14, 18:6, 19:18, 22:120 };
+  // Variable rows: calculate from content
+  const varRows = {
+    10:  { texts: cands.map(c=>c.formacion),    w:44, sz:9,  min:28  },
+    12:  { texts: cands.map(c=>c.cargo_actual), w:44, sz:9,  min:28  },
+    13:  { texts: cands.map(c=>c.otras_empresas),w:44,sz:9,  min:22  },
+    20:  { texts: cands.map(c=>c.competencias), w:44, sz:9,  min:50  },
+    21:  { texts: cands.map(c=>c.debilidades),  w:44, sz:9,  min:50  },
+    23:  { texts: cands.map(c=>c.sugerencias),  w:44, sz:9,  min:50  },
+  };
 
-  // Gráfico — images injected later
-  sc(22, 4, 'Gráfico de\nCompetencias', fntLbl(), fillGreen, alnCC(), allBorders);
-  cands.forEach((_, i) => sc(22, candColIdx(i), '', fntVal(false), fillWhite, alnCC(), allBorders));
+  for (let r = 1; r <= 23; r++) {
+    let h;
+    if (fixedH[r] !== undefined) {
+      h = fixedH[r];
+    } else if (varRows[r]) {
+      const { texts, w, sz, min } = varRows[r];
+      h = calcHeight(texts, w, sz, min, null);
+    } else {
+      h = 15;
+    }
+    ws.getRow(r).height = h;
+  }
 
-  // Sugerencias — sz9, izquierda+arriba
-  fieldRow(23, 'Sugerencias', cands.map(c=>c.sugerencias||''), fntVal(false), alnLT());
-
-  // ── Chart images (row 22) ──────────────────────────────────────────────────
+  // ── Chart images ─────────────────────────────────────────────────────────────
   for (let i = 0; i < cands.length; i++) {
     const b64 = cands[i]._chartB64;
     if (!b64) continue;
@@ -505,13 +562,13 @@ async function buildExcel() {
     } catch(e) { console.warn('Chart image error:', e); }
   }
 
-  // ── Puelche logo (rows 1-4, col B) ────────────────────────────────────────
+  // ── Puelche logo ─────────────────────────────────────────────────────────────
   try {
     const logoId = wb.addImage({ base64: LOGO_B64, extension: 'png' });
     ws.addImage(logoId, { tl:{ col:1, row:0 }, br:{ col:2, row:4 }, editAs:'oneCell' });
   } catch(e) { console.warn('Logo error:', e); }
 
-  // ── Generate & download ────────────────────────────────────────────────────
+  // ── Generate & download ───────────────────────────────────────────────────────
   const buffer = await wb.xlsx.writeBuffer();
   const blob   = new Blob([buffer], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
   const url    = URL.createObjectURL(blob);
