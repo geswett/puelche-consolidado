@@ -3,484 +3,686 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Puelche HC — Generador de Consolidado</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<title>Puelche HC · Consolidado Psicolaboral</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Serif+Display:ital@0;1&display=swap');
-:root{--g:#3a6b35;--gl:#5a9b52;--gp:#eef5ed;--gray:#6b6b6b;--bdr:#d8e4d7;--bg:#f5f8f5;--w:#fff;--sh:0 2px 20px rgba(58,107,53,.08);--sh2:0 8px 32px rgba(58,107,53,.16)}
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:#2c2c2c;min-height:100vh}
-header{background:var(--w);border-bottom:1px solid var(--bdr);padding:16px 40px;display:flex;align-items:center;gap:14px;box-shadow:var(--sh)}
-.logo{height:42px;width:auto;object-fit:contain}
-.vdiv{width:1px;height:30px;background:var(--bdr)}
-.hd-title{font-family:'DM Serif Display',serif;font-size:18px;color:var(--g)}
-.hd-sub{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin-top:1px}
-main{max-width:920px;margin:0 auto;padding:36px 20px}
-.card{background:var(--w);border:1px solid var(--bdr);border-radius:14px;padding:26px;margin-bottom:22px;box-shadow:var(--sh)}
-.sec-lbl{font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--g);margin-bottom:14px}
-.row{display:flex;gap:10px;align-items:center}
-input[type=password],input[type=text]{padding:10px 14px;border:1.5px solid var(--bdr);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:#2c2c2c;background:var(--bg);transition:border .2s,background .2s;width:100%}
-input:focus{outline:none;border-color:var(--gl);background:var(--w)}
-.btn-sm{padding:10px 18px;background:var(--g);color:var(--w);border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s}
-.btn-sm:hover{background:var(--gl)}
-.api-st{font-size:12px;margin-top:7px;min-height:15px}
-.api-st.ok{color:var(--gl)}.api-st.err{color:#c0392b}
-.drop{border:2px dashed var(--bdr);border-radius:10px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .25s;background:var(--bg);position:relative}
-.drop:hover,.drop.over{border-color:var(--gl);background:var(--gp)}
-#fi{position:absolute;inset:0;opacity:0;cursor:pointer}
-.di{font-size:36px;display:block;margin-bottom:10px}
-.dt{font-size:14px;font-weight:600;margin-bottom:5px}
-.ds{font-size:12px;color:var(--gray)}
-.flist{margin-top:18px;display:flex;flex-direction:column;gap:7px}
-.fitem{display:flex;align-items:center;gap:12px;padding:11px 15px;background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;animation:si .2s ease}
-@keyframes si{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
-.ficon{font-size:20px;flex-shrink:0}
-.finfo{flex:1;min-width:0}
-.fname{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fsize{font-size:11px;color:var(--gray);margin-top:2px}
-.fst{font-size:11px;font-weight:700;padding:3px 9px;border-radius:12px;flex-shrink:0}
-.fst.pending{background:#fff3cd;color:#856404}
-.fst.processing{background:#cff4fc;color:#0c5460}
-.fst.done{background:#d1e7dd;color:#0a3622}
-.fst.error{background:#f8d7da;color:#58151c}
-.brm{background:none;border:none;color:var(--gray);cursor:pointer;font-size:15px;padding:3px 5px;border-radius:4px;transition:color .2s;flex-shrink:0}
-.brm:hover{color:#c0392b}
-.meta{display:flex;gap:18px;margin-bottom:18px;flex-wrap:wrap}
-.mf{flex:1;min-width:190px}
-.ml{font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:var(--gray);margin-bottom:6px}
-.btn-gen{width:100%;padding:15px;background:var(--g);color:var(--w);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .25s;letter-spacing:.3px}
-.btn-gen:hover:not(:disabled){background:var(--gl);box-shadow:var(--sh2);transform:translateY(-1px)}
-.btn-gen:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.prog{margin-top:18px;display:none}
-.prog.v{display:block}
-.pb-out{height:6px;background:var(--bdr);border-radius:99px;overflow:hidden;margin-bottom:8px}
-.pb-in{height:100%;background:linear-gradient(90deg,var(--g),var(--gl));border-radius:99px;transition:width .4s ease;width:0}
-.pt{font-size:12px;color:var(--gray);text-align:center}
-.log-s{display:none}.log-s.v{display:block}
-.logbox{background:#1a1a1a;border-radius:8px;padding:14px;font-family:'Courier New',monospace;font-size:11.5px;color:#a8d5a2;max-height:180px;overflow-y:auto;line-height:1.8}
-.ll.warn{color:#f0c040}.ll.err{color:#f07070}
-.res{background:var(--gp);border:2px solid var(--gl);border-radius:14px;padding:28px;text-align:center;display:none;animation:fi .4s ease}
-.res.v{display:block}
-@keyframes fi{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
-.ri{font-size:44px;margin-bottom:10px}
-.rt{font-family:'DM Serif Display',serif;font-size:22px;color:var(--g);margin-bottom:7px}
-.rs{font-size:13px;color:var(--gray);margin-bottom:18px}
-.btn-dl{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:var(--g);color:var(--w);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s}
-.btn-dl:hover{background:var(--gl);box-shadow:var(--sh2)}
-.spin{width:17px;height:17px;border:2.5px solid rgba(255,255,255,.35);border-top-color:var(--w);border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0}
-@keyframes sp{to{transform:rotate(360deg)}}
-@media(max-width:600px){header{padding:13px 18px}main{padding:18px 12px}.meta{flex-direction:column}}
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
+  :root{
+    --green:#2D6A4F;--green-m:#40916C;--green-l:#52B788;--green-p:#D8F3DC;
+    --dark:#1B1F23;--mid:#4A5568;--light:#EDF2F7;--border:#CBD5E0;--err:#C53030;
+    --sans:'DM Sans',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--sans);background:#F0F4F8;color:var(--dark);min-height:100vh}
+  header{background:var(--dark);padding:16px 32px;display:flex;align-items:center;gap:14px;border-bottom:3px solid var(--green-l)}
+  .logo{width:36px;height:36px;background:var(--green-l);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;color:white;font-size:13px}
+  .htxt h1{color:white;font-size:15px;font-weight:600}
+  .htxt p{color:#718096;font-size:12px;margin-top:1px}
+  .wrap{max-width:980px;margin:0 auto;padding:32px 20px}
+  .card{background:white;border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .ctitle{font-size:14px;font-weight:600;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .sbadge{width:22px;height:22px;background:var(--green);color:white;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .cdesc{font-size:13px;color:var(--mid);margin-bottom:18px;line-height:1.5}
+  input[type=text]{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:var(--sans);font-size:14px;outline:none;transition:border .15s;margin-bottom:14px}
+  input[type=text]:focus{border-color:var(--green-l)}
+  input[type=text]::placeholder{color:#A0AEC0}
+  .dz{border:2px dashed var(--border);border-radius:9px;padding:30px 20px;text-align:center;cursor:pointer;transition:all .2s;background:#FAFBFC;position:relative}
+  .dz:hover,.dz.over{border-color:var(--green-l);background:var(--green-p)}
+  .dz input{position:absolute;inset:0;opacity:0;cursor:pointer}
+  .dz-icon{font-size:28px;margin-bottom:8px}
+  .dz-txt{font-size:13px;color:var(--mid)}.dz-txt strong{color:var(--green)}
+  .dz-hint{font-size:11px;color:#A0AEC0;margin-top:5px}
+  #fileList{margin-top:14px;display:flex;flex-direction:column;gap:7px}
+  .fitem{display:flex;align-items:center;gap:9px;padding:9px 13px;background:#F7F9FC;border:1px solid var(--border);border-radius:7px;font-size:13px}
+  .fname{flex:1;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:340px}
+  .fsize{font-size:11px;color:var(--mid)}
+  .tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;white-space:nowrap}
+  .t-pend{background:#FFF3CD;color:#856404}.t-run{background:#D1ECF1;color:#0C5460}
+  .t-done{background:#D4EDDA;color:#155724}.t-err{background:#F8D7DA;color:#721C24}
+  .rmbtn{background:none;border:none;cursor:pointer;color:#CBD5E0;font-size:15px;transition:color .15s;flex-shrink:0}
+  .rmbtn:hover{color:var(--err)}
+  .btn{padding:10px 20px;border-radius:8px;font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:7px}
+  .btn-g{background:var(--green);color:white}
+  .btn-g:hover:not(:disabled){background:var(--green-m)}
+  .btn-g:disabled{background:#A0AEC0;cursor:not-allowed}
+  .btn-o{background:white;color:var(--dark);border:1.5px solid var(--border)}.btn-o:hover{background:var(--light)}
+  .actions{display:flex;gap:10px;margin-top:18px}
+  .pgwrap{margin-top:14px;display:none}
+  .pgbar{height:5px;background:var(--light);border-radius:3px;overflow:hidden;margin-bottom:7px}
+  .pgfill{height:100%;background:var(--green-l);border-radius:3px;transition:width .35s ease;width:0}
+  .pglbl{font-size:12px;color:var(--mid)}
+  #log{margin-top:12px;display:none;background:#1A202C;border-radius:8px;padding:12px 14px;font-family:'Courier New',monospace;font-size:11px;color:#A0AEC0;max-height:150px;overflow-y:auto}
+  .le{margin-bottom:3px}.l-ok{color:#68D391}.l-err{color:#FC8181}.l-i{color:#90CDF4}
+  #previewCard{display:none}
+  .ps{overflow-x:auto;margin-top:14px}
+  table.pt{border-collapse:collapse;font-size:12px;width:100%;min-width:600px}
+  .pt th{background:var(--dark);color:white;padding:8px 11px;text-align:left;font-weight:500;white-space:nowrap}
+  .pt td{padding:8px 11px;border-bottom:1px solid var(--border);vertical-align:top}
+  .pt tr:hover td{background:#F7FAFC}
+  .pt .lbl{font-weight:600;color:var(--mid);font-size:11px;background:#F7F7F7;white-space:nowrap;width:120px}
+  .aj-r{background:var(--green-p);color:var(--green);font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;display:inline-block}
+  .aj-o{background:#FFF3CD;color:#856404;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;display:inline-block}
+  .aj-n{background:#FEEBC8;color:#C05621;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;display:inline-block}
+  .chart-thumb{max-width:260px;max-height:150px;border:1px solid var(--border);border-radius:3px}
+  #dlBox{display:none;margin-top:20px;background:var(--green-p);border:1.5px solid var(--green-l);border-radius:10px;padding:22px 24px;text-align:center}
+  #dlBox h3{font-size:15px;color:var(--green);margin-bottom:6px}
+  #dlBox p{font-size:13px;color:var(--mid);margin-bottom:16px}
+  .btnbig{padding:13px 28px;font-size:14px;background:var(--green);color:white;border-radius:9px;font-family:var(--sans);font-weight:600;border:none;cursor:pointer;transition:background .15s;display:inline-flex;align-items:center;gap:8px}
+  .btnbig:hover{background:var(--green-m)}
+  .spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.35);border-top-color:white;border-radius:50%;animation:sp .7s linear infinite;display:none}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .notice{font-size:12px;color:var(--mid);background:#EBF4FF;border-left:3px solid #90CDF4;padding:10px 14px;border-radius:0 6px 6px 0;margin-top:4px}
 </style>
 </head>
 <body>
+
 <header>
-  <img class="logo" src="data:image/jpeg;base64,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" alt="Puelche HC">
-  <div class="vdiv"></div>
-  <div>
-    <div class="hd-title">Generador de Consolidado</div>
-    <div class="hd-sub">Informes Psicolaborales · Puelche HC</div>
+  <div class="logo">PH</div>
+  <div class="htxt">
+    <h1>Puelche HC — Generador de Consolidado Psicolaboral</h1>
+    <p>Formato oficial · Gráfico de competencias pegado desde el PDF original</p>
   </div>
 </header>
 
-<main>
-  <!-- Worker URL está configurada en el código — colaboradores no necesitan configurar nada -->
-
+<div class="wrap">
   <div class="card">
-    <div class="sec-lbl">📄 Informes PDF de Candidatos</div>
-    <div class="drop" id="drop">
-      <input type="file" id="fi" accept=".pdf" multiple>
-      <span class="di">📂</span>
-      <div class="dt">Arrastra los PDFs aquí o haz clic para seleccionar</div>
-      <div class="ds">Mínimo 2 informes psicolaborales — Formato PDF</div>
+    <div class="ctitle"><span class="sbadge">1</span> Configurar proceso</div>
+    <p class="cdesc">Ingresa el nombre del proceso y sube los informes psicolaborales individuales en PDF (máximo 10 candidatos).</p>
+
+    <input type="text" id="titleInput" placeholder="Ej: Jefe de Desarrollo Farma — Quimick" />
+
+    <div class="dz" id="dz">
+      <input type="file" id="fInput" accept=".pdf" multiple />
+      <div class="dz-icon">📄</div>
+      <p class="dz-txt"><strong>Arrastra los PDFs aquí</strong> o haz clic para seleccionar</p>
+      <p class="dz-hint">Un PDF por candidato · Máx. 10</p>
     </div>
-    <div class="flist" id="flist"></div>
-  </div>
 
-  <div class="card">
-    <div class="sec-lbl">⚙️ Datos del Proceso</div>
-    <div class="meta">
-      <div class="mf">
-        <div class="ml">Cargo del proceso</div>
-        <input type="text" id="cargo" placeholder="ej: Business Intelligence & Growth Lead">
-      </div>
-      <div class="mf">
-        <div class="ml">Empresa cliente</div>
-        <input type="text" id="empresa" placeholder="ej: COMOSA">
-      </div>
+    <div id="fileList"></div>
+
+    <div class="actions">
+      <button class="btn btn-g" id="runBtn" disabled>
+        <span class="spin" id="spin"></span>
+        <span id="runTxt">⚡ Procesar y Generar Excel</span>
+      </button>
+      <button class="btn btn-o" onclick="resetAll()">Limpiar todo</button>
     </div>
-    <button class="btn-gen" id="btn-gen" onclick="run()">
-      <span>✨ Analizar PDFs y Generar Consolidado Excel</span>
-    </button>
-    <div class="prog" id="prog">
-      <div class="pb-out"><div class="pb-in" id="pb"></div></div>
-      <div class="pt" id="pt">Iniciando...</div>
+
+    <div class="pgwrap" id="pgwrap">
+      <div class="pgbar"><div class="pgfill" id="pgfill"></div></div>
+      <div class="pglbl" id="pglbl">Procesando...</div>
+    </div>
+    <div id="log"></div>
+  </div>
+
+  <div class="card" id="previewCard">
+    <div class="ctitle"><span class="sbadge">2</span> Vista previa y descarga</div>
+    <div class="ps"><table class="pt" id="pt"></table></div>
+    <div id="dlBox">
+      <h3>✅ Consolidado listo</h3>
+      <p id="dlDesc"></p>
+      <button class="btnbig" onclick="doDownload()">⬇ Descargar Excel (.xlsx)</button>
     </div>
   </div>
 
-  <div class="card log-s" id="log-s">
-    <div class="sec-lbl">📋 Actividad</div>
-    <div class="logbox" id="logbox"></div>
-  </div>
+  <p class="notice">⚠ Documento confidencial — uso exclusivo interno Puelche HC.</p>
+</div>
 
-  <div class="res" id="res">
-    <div class="ri">🎉</div>
-    <div class="rt">¡Consolidado listo!</div>
-    <div class="rs" id="rs">Se procesaron X candidatos exitosamente.</div>
-    <button class="btn-dl" id="btn-dl">⬇️ Descargar Excel</button>
-  </div>
-</main>
-
-<!-- PDF.js renders into temporary offscreen canvases created in JS -->
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-// ─── CONFIG — CAMBIAR ESTA URL POR LA DE TU WORKER ───────────────────────────
-const WORKER_URL = 'https://puelche-hc.administracion-ee6.workers.dev';
-// Ejemplo: 'https://puelche-hc.gonzalo.workers.dev'
+const LOGO_B64 = "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";
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-// ─── STATE ───────────────────────────────────────────────────────────────────
-let files=[], blob=null, fname='';
+// ─── State ────────────────────────────────────────────────────────────────────
+const S = { files:[], results:[], xlsxData:null, filename:'' };
 
-addEventListener('DOMContentLoaded',()=>{
-  setupDrop(); updateBtn();
+// ─── DOM refs ─────────────────────────────────────────────────────────────────
+const dz      = document.getElementById('dz');
+const fInput  = document.getElementById('fInput');
+const fileList= document.getElementById('fileList');
+const runBtn  = document.getElementById('runBtn');
+const spin    = document.getElementById('spin');
+const runTxt  = document.getElementById('runTxt');
+const pgwrap  = document.getElementById('pgwrap');
+const pgfill  = document.getElementById('pgfill');
+const pglbl   = document.getElementById('pglbl');
+const logEl   = document.getElementById('log');
+const previewCard = document.getElementById('previewCard');
+const dlBox   = document.getElementById('dlBox');
+const dlDesc  = document.getElementById('dlDesc');
+
+// ─── Drag & drop ──────────────────────────────────────────────────────────────
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('over'));
+dz.addEventListener('drop', e => {
+  e.preventDefault(); dz.classList.remove('over');
+  addFiles([...e.dataTransfer.files].filter(f => f.type === 'application/pdf'));
+});
+fInput.addEventListener('change', () => { addFiles([...fInput.files]); fInput.value = ''; });
+
+function addFiles(newFiles) {
+  newFiles.forEach(f => {
+    if (S.files.length >= 10) return;
+    if (!S.files.find(x => x.file.name === f.name && x.file.size === f.size))
+      S.files.push({ file:f, status:'pending', data:null });
+  });
+  renderFiles();
+  runBtn.disabled = S.files.length === 0;
+}
+function removeFile(i) { S.files.splice(i,1); renderFiles(); runBtn.disabled = S.files.length===0; }
+function renderFiles() {
+  fileList.innerHTML = '';
+  const tm = { pending:['t-pend','Pendiente'], running:['t-run','Procesando…'], done:['t-done','✓ Listo'], error:['t-err','Error'] };
+  S.files.forEach((item, i) => {
+    const [cls, lbl] = tm[item.status] || tm.pending;
+    const d = document.createElement('div'); d.className = 'fitem';
+    d.innerHTML = `<span>📄</span>
+      <span class="fname">${item.file.name}</span>
+      <span class="fsize">${(item.file.size/1024).toFixed(0)} KB</span>
+      <span class="tag ${cls}">${lbl}</span>
+      ${item.status==='pending' ? `<button class="rmbtn" onclick="removeFile(${i})">✕</button>` : ''}`;
+    fileList.appendChild(d);
+  });
+}
+
+// ─── Logging & progress ───────────────────────────────────────────────────────
+function log(msg, t='i') {
+  logEl.style.display = 'block';
+  const d = document.createElement('div'); d.className = `le l-${t}`;
+  d.textContent = `[${new Date().toLocaleTimeString('es-CL')}] ${msg}`;
+  logEl.appendChild(d); logEl.scrollTop = logEl.scrollHeight;
+}
+function setProg(pct, txt) { pgwrap.style.display='block'; pgfill.style.width=pct+'%'; pglbl.textContent=txt; }
+
+// ─── File → base64 ────────────────────────────────────────────────────────────
+function toB64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = () => rej(new Error('Error leyendo archivo'));
+    r.readAsDataURL(file);
+  });
+}
+
+// ─── Extract chart image (page 2, section V) ─────────────────────────────────
+async function extractChart(file) {
+  const ab  = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: ab }).promise;
+  if (pdf.numPages < 2) return null;
+  const page = await pdf.getPage(2);
+  const vp   = page.getViewport({ scale: 2.5 });
+  const canvas = document.createElement('canvas');
+  canvas.width = vp.width; canvas.height = vp.height;
+  await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+  // Crop: title "V. GRÁFICO COMPETENCIAS" through legend
+  const top = Math.floor(vp.height * 0.118);
+  const bot = Math.floor(vp.height * 0.535);
+  const L   = Math.floor(vp.width  * 0.022);
+  const R   = vp.width - Math.floor(vp.width * 0.010);
+  const out = document.createElement('canvas');
+  out.width = R-L; out.height = bot-top;
+  out.getContext('2d').drawImage(canvas, L, top, R-L, bot-top, 0, 0, R-L, bot-top);
+  return out.toDataURL('image/png').split(',')[1];
+}
+
+// ─── Claude API: extract one candidate from one informe ───────────────────────
+async function extractData(file) {
+  const b64 = await toB64(file);
+
+  // Precise prompt mapping exact sections of the Puelche HC informe structure
+  const SYS = `Eres un extractor de datos de informes psicolaborales individuales emitidos por Puelche HC.
+El informe contiene datos de UN SOLO candidato. Devuelve ÚNICAMENTE un objeto JSON válido, sin backticks ni texto adicional.
+
+El informe Puelche HC tiene estas secciones numeradas — extrae cada campo del lugar indicado:
+  I.    DATOS DEL CANDIDATO → nombre, edad, ciudad, formacion, renta_estimada, disponibilidad
+  II.   NIVEL DE AJUSTE AL CARGO → ajuste_cargo
+  III.  ACTITUD Y MOTIVACIÓN (contexto general)
+  IV.   AJUSTE A LA ORGANIZACIÓN (contexto general)
+  V.    GRÁFICO COMPETENCIAS (solo imagen, no tiene texto de datos)
+  VI.   SÍNTESIS Y SUGERENCIAS → este bloque tiene DOS partes:
+          - Primer párrafo(s): descripción del estilo de trabajo y fortalezas del candidato → va en "competencias"
+          - Párrafos de "Como oportunidades de mejora..." o "Como principales aspectos de desarrollo..." → van en "debilidades"
+          - Párrafos que empiezan con "En caso de contratación..." o "Se recomienda..." o "Resultará favorable..." → van en "sugerencias"
+  VII.  ANÁLISIS COMPETENCIAS → tabla con ÁREAS DE DOMINIO y ÁREAS DE DESAFÍOS → suma este contenido a "competencias"
+  VIII. ANEXOS / REFERENCIAS LABORALES → empresa_actual, cargo_actual, otras_empresas, estado_laboral
+
+Claves requeridas (usa "" si no aparece el dato):
+- nombre          → nombre completo
+- edad            → edad en años (ej: "38 años"). Si solo hay fecha de nacimiento, calcula la edad.
+- ciudad          → ciudad de residencia
+- formacion       → formación académica completa
+- empresa_actual  → empresa actual o más reciente del candidato. Búscala en las referencias laborales (sección VIII) o en el contexto del informe. Es el lugar donde trabaja o trabajó más recientemente.
+- cargo_actual    → cargo actual o más reciente
+- otras_empresas  → otras empresas relevantes del historial laboral (distintas a la actual)
+- estado_laboral  → "Trabajando" si actualmente tiene empleo, "Búsqueda activa" si está disponible. Infiere del contexto.
+- renta_actual    → renta actual líquida (solo si se menciona explícitamente)
+- renta_estimada  → expectativa de renta líquida del candidato
+- disponibilidad  → disponibilidad para incorporarse (ej: "Inmediata", "Un mes")
+- resumen_laboral → 4-6 viñetas con los hitos más relevantes de su trayectoria, separadas con •
+- ajuste_cargo    → exactamente "Recomendado/a", "Recomendado/a con observaciones", o "No recomendado/a"
+- competencias    → texto completo de la sección VI (primer/segundos párrafos de síntesis de fortalezas) MÁS el contenido de la sección VII ANÁLISIS COMPETENCIAS (áreas de dominio y desafíos). No truncar.
+- debilidades     → párrafos de "oportunidades de mejora" o "aspectos de desarrollo" de la sección VI
+- sugerencias     → párrafos de recomendaciones para la contratación de la sección VI (los que empiezan con "En caso de contratación", "Se recomienda", "Resultará favorable", etc.)`;
+
+  const resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 2000,
+      system: SYS,
+      messages: [{
+        role: 'user',
+        content: [
+          { type: 'document', source: { type:'base64', media_type:'application/pdf', data: b64 } },
+          { type: 'text', text: 'Extrae todos los campos del candidato de este informe psicolaboral y devuelve solo el JSON.' }
+        ]
+      }]
+    })
+  });
+
+  if (!resp.ok) {
+    const err = await resp.text().catch(() => resp.statusText);
+    throw new Error(`API ${resp.status}: ${err.slice(0,120)}`);
+  }
+  const pay = await resp.json();
+  const raw = (pay.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+  const m   = raw.match(/\{[\s\S]*\}/);
+  if (!m) throw new Error('Respuesta sin JSON válido');
+  return JSON.parse(m[0]);
+}
+
+// ─── Main process ─────────────────────────────────────────────────────────────
+runBtn.addEventListener('click', async () => {
+  runBtn.disabled = true;
+  spin.style.display = 'inline-block';
+  runTxt.textContent = 'Procesando…';
+  S.results = []; S.xlsxData = null;
+  logEl.innerHTML = ''; previewCard.style.display = 'none';
+
+  const total = S.files.length;
+  log(`Iniciando ${total} informe(s)`, 'i');
+
+  for (let i = 0; i < total; i++) {
+    const item = S.files[i];
+    item.status = 'running'; renderFiles();
+    setProg(Math.round((i / total) * 80), `${item.file.name} (${i+1}/${total})`);
+    log(`Analizando: ${item.file.name}`, 'i');
+
+    try {
+      const [data, chartB64] = await Promise.all([
+        extractData(item.file),
+        extractChart(item.file).catch(e => { log(`Aviso gráfico: ${e.message}`, 'i'); return null; })
+      ]);
+      data._fn = item.file.name;
+      data._chartB64 = chartB64;
+      S.results.push(data);
+      item.status = 'done';
+      log(`✓ ${data.nombre}  →  ${data.ajuste_cargo}`, 'ok');
+      if (chartB64) log(`  📊 Gráfico extraído`, 'ok');
+    } catch(e) {
+      item.status = 'error';
+      log(`✗ ${item.file.name}: ${e.message}`, 'err');
+    }
+    renderFiles();
+  }
+
+  if (!S.results.length) {
+    log('Sin candidatos procesados.', 'err');
+    spin.style.display = 'none'; runTxt.textContent = '⚡ Procesar y Generar Excel'; runBtn.disabled = false;
+    return;
+  }
+
+  setProg(90, 'Construyendo Excel…');
+  log('Generando Excel…', 'i');
+  try {
+    buildExcel();
+    setProg(100, `✓ ${S.results.length} candidato(s) listos`);
+    log('Excel generado', 'ok');
+    renderPreview();
+    previewCard.style.display = 'block'; dlBox.style.display = 'block';
+    dlDesc.textContent = `${S.results.length} candidato(s) con formato oficial Puelche HC.`;
+    previewCard.scrollIntoView({ behavior:'smooth', block:'start' });
+  } catch(e) { log(`Error Excel: ${e.message}`, 'err'); console.error(e); }
+
+  spin.style.display = 'none'; runTxt.textContent = '⚡ Procesar y Generar Excel'; runBtn.disabled = false;
 });
 
-function setSt(t,m){} // no-op, kept for compatibility
+// ─── Build Excel (Salfa Sur format) ─────────────────────────────────────────
+function buildExcel() {
+  const cands = S.results, n = cands.length;
+  const TITLE = (document.getElementById('titleInput').value || 'FINALISTAS').toUpperCase();
+  const FONT  = 'Calibri';
 
-// ─── FILES ───────────────────────────────────────────────────────────────────
-function setupDrop(){
-  const z=document.getElementById('drop'), fi=document.getElementById('fi');
-  z.addEventListener('dragover',e=>{e.preventDefault();z.classList.add('over')});
-  z.addEventListener('dragleave',()=>z.classList.remove('over'));
-  z.addEventListener('drop',e=>{e.preventDefault();z.classList.remove('over');addFiles([...e.dataTransfer.files])});
-  fi.addEventListener('change',()=>{addFiles([...fi.files]);fi.value=''});
-}
-function addFiles(nf){
-  nf.filter(f=>f.name.endsWith('.pdf')).forEach(f=>{
-    if(!files.find(x=>x.file.name===f.name&&x.file.size===f.size))
-      files.push({file:f,st:'pending'});
-  });
-  render(); updateBtn();
-  document.getElementById('res').classList.remove('v');
-}
-function removeFile(i){files.splice(i,1);render();updateBtn()}
-function stLabel(s){return{pending:'Pendiente',processing:'Procesando…',done:'Listo ✓',error:'Error ✗'}[s]||s}
-function render(){
-  document.getElementById('flist').innerHTML=files.map((f,i)=>`
-    <div class="fitem">
-      <span class="ficon">📄</span>
-      <div class="finfo"><div class="fname">${f.file.name}</div><div class="fsize">${(f.file.size/1024).toFixed(0)} KB</div></div>
-      <span class="fst ${f.st}">${stLabel(f.st)}</span>
-      ${f.st==='pending'?`<button class="brm" onclick="removeFile(${i})">✕</button>`:''}
-    </div>`).join('');
-}
-function updateBtn(){
-  const btn=document.getElementById('btn-gen');
-  if(!btn) return;
-  btn.disabled=files.length<2;
-  btn.style.opacity=files.length<2?'0.45':'1';
-  btn.style.cursor=files.length<2?'not-allowed':'pointer';
-}
+  // Colors from Salfa Sur target
+  const GREEN  = 'C2D69B';   // section + field label bg (light olive green)
+  const WHITE  = 'FFFFFF';
+  const FCOL   = '434343';   // font color (dark gray)
 
-// ─── LOG / PROGRESS ──────────────────────────────────────────────────────────
-function log(m,t='info'){
-  const b=document.getElementById('logbox');
-  document.getElementById('log-s').classList.add('v');
-  const d=document.createElement('div'); d.className='ll '+t;
-  d.textContent=`[${new Date().toLocaleTimeString('es-CL')}] ${m}`;
-  b.appendChild(d); b.scrollTop=b.scrollHeight;
-}
-function setProg(p,t){
-  document.getElementById('prog').classList.add('v');
-  document.getElementById('pb').style.width=p+'%';
-  document.getElementById('pt').textContent=t;
-}
+  const thin   = { style:'thin', color:{ rgb:'000000' } };
+  const brd    = { top:thin, bottom:thin, left:thin, right:thin };
+  const ACC    = { horizontal:'center', vertical:'center', wrapText:true };
+  const ALV    = { horizontal:'left',   vertical:'center', wrapText:true };
+  const ALT    = { horizontal:'left',   vertical:'top',    wrapText:true };
+  const fGreen = { patternType:'solid', fgColor:{ rgb:GREEN } };
+  const fWhite = { patternType:'solid', fgColor:{ rgb:WHITE } };
 
-// ─── UTILS ───────────────────────────────────────────────────────────────────
-function delay(ms){return new Promise(r=>setTimeout(r,ms))}
-function fileToB64(f){
-  return new Promise((res,rej)=>{
-    const r=new FileReader();
-    r.onload=()=>res(r.result.split(',')[1]);
-    r.onerror=()=>rej(new Error('Error leyendo '+f.name));
-    r.readAsDataURL(f);
-  });
-}
+  // Font helpers
+  const fH = (sz, bold) => ({ name:FONT, sz, bold:!!bold, color:{ rgb:FCOL } });
 
-// ─── CLAUDE API EXTRACTION (via Cloudflare Worker) ──────────────────────────
-async function extractFromPDF(b64, name, attempt=1){
-  const r=await fetch(WORKER_URL+'/analyze',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({pdf_b64:b64})
-  });
+  const wb = XLSX.utils.book_new();
+  const ws = {};
 
-  if(r.status===429){
-    if(attempt>3) throw new Error('Rate limit persistente. Espera 1 minuto e intenta de nuevo.');
-    const wait=25*attempt;
-    log(`⏳ Rate limit — esperando ${wait}s (intento ${attempt}/3)…`,'warn');
-    await delay(wait*1000);
-    return extractFromPDF(b64,name,attempt+1);
-  }
-  if(!r.ok){
-    const e=await r.json().catch(()=>({}));
-    throw new Error(e.error||`Worker error ${r.status}`);
-  }
-  return await r.json();
-}
+  // Column layout (matches Salfa Sur exactly):
+  // A=margin, B=section, C=spacer, D=field, E=spacer, F=cand1, G=spacer, H=cand2, I=spacer...
+  // Candidate columns: F(5), H(7), J(9), L(11), N(13)...
+  // Each candidate occupies one even column (0-based: 5,7,9,11...)
+  function candCol(i) { return 5 + i * 2; }  // 0-based col index
 
-// ─── EXTRACT CHART FROM PDF (PDF.js — 100% browser, no server needed) ────────
-async function extractChartFromPDF(pdfB64){
-  // Configure PDF.js worker
-  if(!pdfjsLib.GlobalWorkerOptions.workerSrc)
-    pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  const lastCandCol = candCol(n - 1);
+  const lastColLetter = XLSX.utils.encode_col(lastCandCol);
 
-  // Load PDF from base64
-  const pdfBytes=Uint8Array.from(atob(pdfB64),c=>c.charCodeAt(0));
-  const pdf=await pdfjsLib.getDocument({data:pdfBytes}).promise;
-
-  // Chart is on page 2 (index 1)
-  const page=await pdf.getPage(2);
-
-  // Render at 3x scale for quality
-  const scale=3;
-  const viewport=page.getViewport({scale});
-  const W=viewport.width, H=viewport.height;
-
-  // Use a temporary offscreen canvas
-  const canvas=document.createElement('canvas');
-  canvas.width=W; canvas.height=H;
-  const ctx=canvas.getContext('2d');
-  ctx.fillStyle='#ffffff';
-  ctx.fillRect(0,0,W,H);
-
-  await page.render({canvasContext:ctx,viewport}).promise;
-
-  // Crop: just the chart area (skip intro text, keep radar + labels)
-  // These ratios were calibrated against real Puelche HC reports
-  const left  =Math.floor(W*0.03);
-  const right =Math.floor(W*0.97);
-  const top   =Math.floor(H*0.28);
-  const bottom=Math.floor(H*0.62);
-  const cW=right-left, cH=bottom-top;
-
-  const cropCanvas=document.createElement('canvas');
-  cropCanvas.width=cW; cropCanvas.height=cH;
-  const cropCtx=cropCanvas.getContext('2d');
-  cropCtx.drawImage(canvas, left, top, cW, cH, 0, 0, cW, cH);
-
-  // Return as base64 PNG (strip data: prefix)
-  return cropCanvas.toDataURL('image/png').split(',')[1];
-}
-
-// ─── EXCEL GENERATION (ExcelJS — full formatting + images) ───────────────────
-async function buildExcel(candidates, cargo, empresa){
-  const XL=ExcelJS;
-  const wb=new XL.Workbook();
-  wb.creator='Puelche HC'; wb.created=new Date();
-  const ws=wb.addWorksheet('Consolidado Finalistas');
-  const n=candidates.length;
-
-  // ── Column widths (set individually to avoid ExcelJS key bug) ──────────────
-  ws.getColumn(1).width=3;   // A
-  ws.getColumn(2).width=22;  // B
-  ws.getColumn(3).width=3;   // C
-  ws.getColumn(4).width=24;  // D
-  ws.getColumn(5).width=3;   // E
-  for(let i=0;i<n;i++) ws.getColumn(6+i).width=52;  // F, G, H…
-
-  // ── Row heights ────────────────────────────────────────────────────────────
-  const rowH={1:18,2:18,3:18,4:18,5:30,6:10,7:28,8:16,9:16,10:44,
-              11:10,12:44,13:30,14:20,15:10,16:20,17:20,18:20,
-              19:10,20:10,21:20,22:72,23:60,24:210,25:95};
-  Object.entries(rowH).forEach(([r,h])=>ws.getRow(+r).height=h);
-
-  // ── Style helpers ──────────────────────────────────────────────────────────
-  const thin={style:'thin',color:{argb:'FFB8D4B7'}};
-  const med ={style:'medium',color:{argb:'FF3A6B35'}};
-  const bThin={top:thin,bottom:thin,left:thin,right:thin};
-  const bMed ={top:med,bottom:med,left:med,right:med};
-
-  function styleCell(cell,{bg,fc='FF2C2C2C',bold=false,sz=10,wrap=true,vAlign='middle',hAlign='center',border=bThin}={}){
-    if(bg) cell.fill={type:'pattern',pattern:'solid',fgColor:{argb:bg}};
-    cell.font={name:'Calibri',size:sz,bold,color:{argb:fc}};
-    cell.alignment={wrapText:wrap,vertical:vAlign,horizontal:hAlign};
-    cell.border=border;
+  function sc(r, c, val, font, fill, align, border) {
+    const ref = XLSX.utils.encode_cell({ r, c });
+    ws[ref] = { v: val||'', t:'s' };
+    const s = {};
+    if (font)   s.font      = font;
+    if (fill)   s.fill      = fill;
+    if (align)  s.alignment = align;
+    if (border) s.border    = border;
+    if (Object.keys(s).length) ws[ref].s = s;
   }
 
-  function setVal(row,col,value,opts){
-    const cell=ws.getCell(row,col);
-    cell.value=value;
-    styleCell(cell,opts);
+  // Fill section label col B with green for a row range
+  function secLabel(r1, r2, label) {
+    sc(r1, 1, label, fH(10,true), fGreen, ACC, brd);
+    for (let r = r1+1; r <= r2; r++) {
+      const ref = XLSX.utils.encode_cell({ r, c:1 });
+      ws[ref] = { v:'', s:{ fill:fGreen, border:brd } };
+    }
   }
 
-  // ── Merges ────────────────────────────────────────────────────────────────
-  const lastCol=5+n;
-  ws.mergeCells(5,2,5,lastCol);          // Title
-  ws.mergeCells(7,2,10,2);              // INFO GENERAL
-  ws.mergeCells(12,2,14,2);             // INFO LABORAL
-  ws.mergeCells(16,2,18,2);             // CONDICIONES
-  ws.mergeCells(21,2,25,2);             // INFORME PSICO
-
-  // ── Rows 1-4 padding ──────────────────────────────────────────────────────
-  // (logo will go here as image)
-
-  // ── Row 5: Title ──────────────────────────────────────────────────────────
-  setVal(5,2,`FINALISTAS - ${cargo.toUpperCase()} - ${empresa.toUpperCase()}`,
-    {bg:'FFD4E8D1',fc:'FF2C4A29',bold:true,sz:12,border:bMed});
-
-  // ── Section helper ────────────────────────────────────────────────────────
-  function section(r1,r2,txt){
-    setVal(r1,2,txt,{bg:'FF3A6B35',fc:'FFFFFFFF',bold:true,sz:10,border:bMed});
-  }
-  function label(r,txt){
-    setVal(r,4,txt,{bg:'FFEEF5ED',fc:'FF2C4A29',bold:true,sz:10,border:bThin});
-  }
-  function dataRow(r,values,opts={}){
-    values.forEach((v,i)=>setVal(r,6+i,v,{fc:'FF2C2C2C',sz:9,hAlign:'left',...opts}));
+  // Write a field label (col D) + candidate values
+  function fieldRow(r, label, values, valAlign) {
+    sc(r, 3, label, fH(10,true), fGreen, ACC, brd);
+    values.forEach((val, i) => sc(r, candCol(i), val||'', fH(10,false), fWhite, valAlign||ALV, brd));
   }
 
-  // ── INFORMACION GENERAL ──────────────────────────────────────────────────
-  section(7,10,'INFORMACION\nGENERAL');
-  label(7,'Nombre');  dataRow(7,candidates.map(c=>c.nombre),{bold:true});
-  label(8,'Edad');    dataRow(8,candidates.map(c=>c.edad));
-  label(9,'Ciudad');  dataRow(9,candidates.map(c=>c.ciudad));
-  label(10,'Educación /\nFormación'); dataRow(10,candidates.map(c=>c.formacion));
+  // ── Row 4 (idx 4): Title bar spanning B to last candidate col ───────────────
+  sc(4, 1, `FINALISTAS — ${TITLE}`, fH(10,true), fGreen, ACC, brd);
+  for (let c = 2; c <= lastCandCol; c++) {
+    const ref = XLSX.utils.encode_cell({ r:4, c });
+    ws[ref] = { v:'', s:{ fill:fGreen, border:brd } };
+  }
 
-  // ── INFORMACION LABORAL ───────────────────────────────────────────────────
-  section(12,14,'INFORMACION\nLABORAL');
-  label(12,'Cargo actual /\nÚltimo Cargo');  dataRow(12,candidates.map(c=>c.cargo_actual));
-  label(13,'Otras Empresas\nRelevantes');    dataRow(13,candidates.map(c=>c.empresas_relevantes));
-  label(14,'Estado Laboral');               dataRow(14,candidates.map(c=>c.estado_laboral));
+  // ── Row 6 (idx 6): Candidate name headers ───────────────────────────────────
+  // Section label col B merged with rows below
+  sc(6, 3, 'Nombre', fH(10,true), fGreen, ACC, brd);
+  cands.forEach((c, i) => sc(6, candCol(i), c.nombre||'', fH(10,true), fWhite, ACC, brd));
 
-  // ── CONDICIONES LABORALES ─────────────────────────────────────────────────
-  section(16,18,'CONDICIONES\nLABORALES');
-  label(16,'Renta Actual Liq.');   dataRow(16,candidates.map(()=>''));
-  label(17,'Renta Estimada Liq.'); dataRow(17,candidates.map(c=>c.renta_estimada));
-  label(18,'Disponibilidad');      dataRow(18,candidates.map(c=>c.disponibilidad));
+  // ── INFORMACION GENERAL: rows 6-9 (idx 6-9), section B6:B9 ─────────────────
+  secLabel(6, 9, 'INFORMACION\nGENERAL');
+  fieldRow(7,  'Edad',                 cands.map(c => c.edad),      ALV);
+  fieldRow(8,  'Ciudad',               cands.map(c => c.ciudad),    ALV);
+  fieldRow(9,  'Educación /\nFormación',cands.map(c => c.formacion), ALV);
 
-  // ── INFORME PSICOLABORAL ──────────────────────────────────────────────────
-  section(21,25,'INFORME\nPSICOLABORAL');
-  label(21,'Ajuste al Cargo');
-  label(22,'Fortalezas de\ncompetencias');
-  label(23,'Áreas de\ndesarrollo');
-  label(24,'Gráfico de\nCompetencias');
-  label(25,'Sugerencias');
+  // ── INFORMACION LABORAL: rows 11-13 (idx 11-13), section B11:B13 ────────────
+  secLabel(11, 13, 'INFORMACION\nLABORAL');
+  fieldRow(11, 'Cargo actual /\nÚltimo Cargo',   cands.map(c => c.cargo_actual),   ALV);
+  fieldRow(12, 'Otras Empresas\nRelevantes',      cands.map(c => c.otras_empresas), ALV);
+  fieldRow(13, 'Estado Laboral',                  cands.map(c => c.estado_laboral), ALV);
 
-  const ajColors={
-    'Recomendado':               {bg:'FFD1E7DD',fc:'FF0A3622'},
-    'Recomendado Con Observaciones':{bg:'FFFFF3CD',fc:'FF664D03'},
-    'No Recomendado':            {bg:'FFF8D7DA',fc:'FF58151C'},
+  // ── CONDICIONES LABORALES: rows 15-16 (idx 15-16), section B15:B16 ──────────
+  secLabel(15, 16, 'CONDICIONES\nLABORALES');
+  fieldRow(15, 'Renta Estimada Liq.',  cands.map(c => c.renta_estimada),  ALV);
+  fieldRow(16, 'Disponibilidad',       cands.map(c => c.disponibilidad),  ALV);
+
+  // ── INFORME PSICOLABORAL: rows 18-22 (idx 18-22), section B18:B22 ───────────
+  secLabel(18, 22, 'INFORME\nPSICOLABORAL');
+  fieldRow(18, 'Ajuste al Cargo',          cands.map(c => c.ajuste_cargo),  ACC);
+  fieldRow(19, 'Fortalezas de\ncompetencias', cands.map(c => c.competencias||''), ALT);
+  fieldRow(20, 'Áreas de\ndesarrollo',      cands.map(c => c.debilidades||''),   ALT);
+  // Row 21: Gráfico (image overlay)
+  sc(21, 3, 'Gráfico de\nCompetencias', fH(10,true), fGreen, ACC, brd);
+  cands.forEach((_, i) => sc(21, candCol(i), '', fH(9,false), fWhite, ACC, brd));
+  // Row 22: Sugerencias  
+  fieldRow(22, 'Sugerencias', cands.map(c => c.sugerencias||''), ALT);
+
+  // ── Sheet metadata ──────────────────────────────────────────────────────────
+  ws['!ref'] = XLSX.utils.encode_range({ s:{r:0,c:0}, e:{r:23, c:lastCandCol} });
+
+  // Column widths matching Salfa Sur exactly
+  const cols = [
+    { wch:3.0  },   // A: margin
+    { wch:18.0 },   // B: section labels
+    { wch:1.71 },   // C: spacer
+    { wch:17.86},   // D: field labels
+    { wch:2.0  },   // E: spacer
+  ];
+  for (let i = 0; i < n; i++) {
+    cols.push({ wch:44.0 });   // candidate column
+    if (i < n-1) cols.push({ wch:2.0 }); // spacer between candidates
+  }
+  ws['!cols'] = cols;
+
+  // Row heights matching Salfa Sur
+  const RH = {
+    4:24,    // title
+    5:13.5,  // spacer
+    6:18,    // Nombre / section header
+    7:12.75, // Edad
+    8:12.75, // Ciudad
+    9:52.5,  // Educación (taller for wrapping)
+    10:10.5, // spacer
+    11:39.75,// Cargo
+    12:31.5, // Otras empresas
+    13:15.75,// Estado laboral
+    14:10.5, // spacer
+    15:15.75,// Renta
+    16:15.75,// Disponibilidad
+    17:15.0, // spacer
+    18:15.75,// Ajuste al cargo
+    19:70.5, // Fortalezas
+    20:106.5,// Áreas de desarrollo
+    21:117.75,// Gráfico
+    22:120.0, // Sugerencias
   };
-  candidates.forEach((c,i)=>{
-    const col=6+i;
-    const aj=c.ajuste_cargo||'Recomendado';
-    const {bg,fc}=ajColors[aj]||{bg:'FFFFFFFF',fc:'FF000000'};
-    setVal(21,col,aj+'.',{bg,fc,bold:true,sz:10,hAlign:'left'});
-    setVal(22,col,c.fortalezas,{fc:'FF2C2C2C',sz:9,hAlign:'left',vAlign:'top'});
-    setVal(23,col,c.debilidades,{fc:'FF2C2C2C',sz:9,hAlign:'left',vAlign:'top'});
-    setVal(24,col,'',{fc:'FF2C2C2C',sz:9});
-    setVal(25,col,c.sugerencias,{fc:'FF2C2C2C',sz:9,hAlign:'left',vAlign:'top'});
-  });
+  ws['!rows'] = Array.from({ length:24 }, (_, i) => RH[i] ? { hpt:RH[i] } : null);
 
-  // ── LOGO ──────────────────────────────────────────────────────────────────
-  try{
-    const logoId=wb.addImage({base64:'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8TW0NtfMnh7UZodJnS3jniG5LiRo4nwcAsn+tADEFSQfmB4rQ1/xv/YHiGz0uezU29z5Q+0+dlgzyFAvlqrP6HcQF56jBNAHjfxL/Zn8R/Ebx1c+K5Ne0exebygtusMsgAjUKMtkZzj0Fe1eIfCFp488KT6D4stLeWK5UCQWzthGByroxAIYHkf1Gaoa78RotCuNctZdNle605YGtIN+H1IyDpEMZOGypxnkdq05/F1raeLR4euVS3L2a3UdxLKFWRmlKeWoPVuM9e/SgDxbw3+zp44+F2sz33w98d2qW1xgS2eqWpKSAdA+3IJGT8wCnk+tem6VZfFW5Kx63rHhCzi/ifTbCeSRvoZJAqn3Ib6Vt6V4jvtQ8T6rosumRQRacsLG5FwzeaJQxXC7ByAvPPGR1rMX4hyy+HfD2sQ6BeTvrVz9nFpHIokhGyVy2WwDxEeCRksOaAJPid4R17xl4TfSfD/ii68PXxkVzeQg7pFAIKEqQVByDlcdPTIrE+DXw48WfD+2v08TeNrvxGLkr5MMpdlt8ZyQzktzkccDjvWynxGil8P65rMWj6i6aVefYxD5TLLKcR5cqwBRVMh3Eg4CMea0PDPi2HxFd31opszLZrEzG0naeMh92MOY1U/dPQn3xQB0FFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAYooooAMUUUUAGKKKKACjFFFABiiiigAooooAKMYoooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD//Z',extension:'jpeg'});
-    ws.addImage(logoId,{tl:{col:1,row:0},ext:{width:160,height:64}});
-  }catch(e){log('Logo: '+e.message,'warn')}
+  // Merges: section col B + title
+  ws['!merges'] = [
+    { s:{r:4,c:1},  e:{r:4,c:lastCandCol}  },  // title bar
+    { s:{r:6,c:1},  e:{r:9,c:1}            },  // INFO GENERAL
+    { s:{r:11,c:1}, e:{r:13,c:1}           },  // INFO LABORAL
+    { s:{r:15,c:1}, e:{r:16,c:1}           },  // CONDICIONES
+    { s:{r:18,c:1}, e:{r:22,c:1}           },  // INFORME PSICO
+  ];
 
-  // ── RADAR CHARTS — use real chart extracted from PDF ──────────────────────
-  for(let i=0;i<candidates.length;i++){
-    try{
-      const chartB64=candidates[i]._chartB64||null;
-      if(!chartB64) throw new Error('sin imagen');
-      const imgId=wb.addImage({base64:chartB64,extension:'png'});
-      ws.addImage(imgId,{tl:{col:5+i,row:23},ext:{width:380,height:200}});
-    }catch(e){log(`Gráfico ${i+1} no disponible: `+e.message,'warn')}
-  }
+  XLSX.utils.book_append_sheet(wb, ws, 'Consolidado Finalistas');
 
-  // ── Export ────────────────────────────────────────────────────────────────
-  const buf=await wb.xlsx.writeBuffer();
-  return new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+  // Store chart images for injection (one per candidate)
+  S._chartImages = cands.map(c => c._chartB64 || null);
+  // Store candidate col indices for drawing injection
+  S._candCols = cands.map((_, i) => candCol(i));
+
+  S.xlsxData = XLSX.write(wb, { bookType:'xlsx', type:'array', cellStyles:true });
+  const safeT = (document.getElementById('titleInput').value || 'Consolidado')
+    .replace(/[^\w\s\-]/g,'').replace(/\s+/g,'_').slice(0,50);
+  S.filename = `Consolidado_${safeT}_${new Date().toISOString().slice(0,10)}.xlsx`;
 }
 
-// ─── MAIN RUN ────────────────────────────────────────────────────────────────
-async function run(){
-  if(files.length<2) return;
-  const cargo=document.getElementById('cargo').value||'Cargo del Proceso';
-  const empresa=document.getElementById('empresa').value||'Empresa';
 
-  document.getElementById('res').classList.remove('v');
-  document.getElementById('log-s').classList.remove('v');
-  document.getElementById('logbox').innerHTML='';
-  document.getElementById('prog').classList.remove('v');
+// ─── Download: inject images into the xlsx zip ────────────────────────────────
+async function doDownload() {
+  if (!S.xlsxData) { alert('Procesa los PDFs primero.'); return; }
+  let final = S.xlsxData;
 
-  const btn=document.getElementById('btn-gen');
-  btn.disabled=true;
-  btn.innerHTML='<div class="spin"></div><span>Procesando informes…</span>';
+  try {
+    const JSZip = await loadJSZip();
+    const zip   = await JSZip.loadAsync(S.xlsxData);
+    const refs  = [];
 
-  const candidates=[];
-  try{
-    log(`Iniciando análisis de ${files.length} informes con IA…`);
-    for(let i=0;i<files.length;i++){
-      const f=files[i];
-      f.st='processing'; render();
-      setProg(Math.round(i/files.length*80),`Analizando ${i+1} de ${files.length}: ${f.file.name}`);
-      log(`📄 Procesando: ${f.file.name}`);
-      const b64=await fileToB64(f.file);
-      log('🤖 Extrayendo datos con Claude API…');
-      const data=await extractFromPDF(b64,f.file.name);
-      candidates.push(data);
-      f.st='done'; render();
-      log(`✓ ${data.nombre} — ${data.ajuste_cargo}`);
-
-      // Extract real chart directly from PDF in browser (no server needed)
-      try{
-        setProg(Math.round((i+0.7)/files.length*80),`Extrayendo gráfico de ${f.file.name}…`);
-        data._chartB64=await extractChartFromPDF(b64);
-        log(`📊 Gráfico extraído del PDF para ${data.nombre}`);
-      }catch(chartErr){
-        log(`⚠️ No se pudo extraer gráfico: ${chartErr.message}`,'warn');
-      }
-
-      // Pausa entre PDFs para no superar rate limit
-      if(i<files.length-1){
-        log('⏱ Esperando 20s antes del siguiente informe…','warn');
-        for(let t=20;t>0;t--){
-          setProg(Math.round((i+1)/files.length*80),`Pausa ${t}s — preparando siguiente informe…`);
-          await delay(1000);
-        }
-      }
+    // Chart images → row 21 (0-based index 21 = Gráfico de Competencias row)
+    const candCols = S._candCols || S._chartImages.map((_,i) => 5 + i*2);
+    for (let i = 0; i < S._chartImages.length; i++) {
+      const b64 = S._chartImages[i]; if (!b64) continue;
+      const id  = i + 1;
+      zip.file(`xl/media/chart_${i}.png`, b64, { base64:true });
+      zip.file(`xl/drawings/drawing${id}.xml`,       drawImgXml(id, candCols[i], 21));
+      zip.file(`xl/drawings/_rels/drawing${id}.xml.rels`, drawRels(`chart_${i}`));
+      refs.push({ id, rid:`rDr${id}` });
     }
 
-    setProg(88,'Generando Excel con formato y gráficos…');
-    log('📊 Construyendo Excel con colores, bordes y gráficos radar…');
+    // Puelche logo → rows 0-3, col B(1)
+    const lid = S._chartImages.length + 1;
+    zip.file('xl/media/logo.png', LOGO_B64, { base64:true });
+    zip.file(`xl/drawings/drawing${lid}.xml`,        drawLogoXml(lid));
+    zip.file(`xl/drawings/_rels/drawing${lid}.xml.rels`, drawRels('logo'));
+    refs.push({ id:lid, rid:`rDr${lid}` });
 
-    blob=await buildExcel(candidates,cargo,empresa);
-    fname=`Consolidado_${empresa}_${cargo.replace(/[^a-zA-Z0-9]/g,'_')}.xlsx`;
+    // Patch sheet relationships
+    const sRelPath = 'xl/worksheets/_rels/sheet1.xml.rels';
+    let sRel = await zip.file(sRelPath)?.async('string').catch(() => '') || '';
+    if (!sRel.includes('<Relationships'))
+      sRel = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">`;
+    else sRel = sRel.replace('</Relationships>', '');
+    refs.forEach(({ id, rid }) => {
+      if (!sRel.includes(`drawing${id}.xml`))
+        sRel += `\n  <Relationship Id="${rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/drawing" Target="../drawings/drawing${id}.xml"/>`;
+    });
+    sRel += '\n</Relationships>';
+    zip.file(sRelPath, sRel);
 
-    setProg(100,'¡Completado!');
-    log(`✅ Archivo listo: ${fname}`);
+    // Patch sheet1.xml
+    let sXml = await zip.file('xl/worksheets/sheet1.xml').async('string');
+    if (!sXml.includes('xmlns:r='))
+      sXml = sXml.replace('<worksheet ', `<worksheet xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" `);
+    let tags = '';
+    refs.forEach(({ rid }) => { if (!sXml.includes(rid)) tags += `<drawing r:id="${rid}"/>`; });
+    if (tags) sXml = sXml.replace('</worksheet>', tags + '</worksheet>');
+    zip.file('xl/worksheets/sheet1.xml', sXml);
 
-    document.getElementById('btn-dl').onclick=()=>{
-      const url=URL.createObjectURL(blob);
-      const a=document.createElement('a');
-      a.href=url; a.download=fname; a.click();
-      URL.revokeObjectURL(url);
-    };
-    document.getElementById('rs').textContent=`Se procesaron ${candidates.length} candidatos exitosamente.`;
-    document.getElementById('res').classList.add('v');
+    // Patch [Content_Types].xml
+    let ct = await zip.file('[Content_Types].xml').async('string');
+    if (!ct.includes('image/png'))
+      ct = ct.replace('</Types>', `  <Default Extension="png" ContentType="image/png"/>\n</Types>`);
+    refs.forEach(({ id }) => {
+      if (!ct.includes(`drawing${id}.xml`))
+        ct = ct.replace('</Types>', `  <Override PartName="/xl/drawings/drawing${id}.xml" ContentType="application/vnd.openxmlformats-officedocument.drawing+xml"/>\n</Types>`);
+    });
+    zip.file('[Content_Types].xml', ct);
 
-  }catch(e){
-    log(`❌ Error: ${e.message}`,'err');
-    files.forEach(f=>{if(f.st==='processing') f.st='error'});
-    render();
-    alert(`Error: ${e.message}`);
+    final = await zip.generateAsync({ type:'arraybuffer', compression:'DEFLATE', compressionOptions:{ level:6 } });
+    log(`✓ ${S._chartImages.filter(Boolean).length} gráfico(s) + logo insertados`, 'ok');
+  } catch(e) {
+    console.warn('Image injection failed:', e);
+    log(`Aviso: imágenes no insertadas — ${e.message}`, 'i');
   }
 
-  btn.disabled=false;
-  btn.innerHTML='<span>✨ Analizar PDFs y Generar Consolidado Excel</span>';
-  updateBtn();
+  const blob = new Blob([final], { type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a'); a.href = url; a.download = S.filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+}
+
+// ─── Drawing XML helpers ──────────────────────────────────────────────────────
+function drawImgXml(id, colIdx, rowIdx) {
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"
+  xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <xdr:twoCellAnchor editAs="oneCell">
+    <xdr:from><xdr:col>${colIdx}</xdr:col><xdr:colOff>50000</xdr:colOff><xdr:row>${rowIdx}</xdr:row><xdr:rowOff>50000</xdr:rowOff></xdr:from>
+    <xdr:to><xdr:col>${colIdx+1}</xdr:col><xdr:colOff>-50000</xdr:colOff><xdr:row>${rowIdx+1}</xdr:row><xdr:rowOff>-50000</xdr:rowOff></xdr:to>
+    <xdr:pic>
+      <xdr:nvPicPr><xdr:cNvPr id="${20+id}" name="Chart${id}"/><xdr:cNvPicPr><a:picLocks noChangeAspect="0"/></xdr:cNvPicPr></xdr:nvPicPr>
+      <xdr:blipFill><a:blip r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>
+      <xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr>
+    </xdr:pic>
+    <xdr:clientData/>
+  </xdr:twoCellAnchor>
+</xdr:wsDr>`;
+}
+function drawLogoXml(id) {
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xdr:wsDr xmlns:xdr="http://schemas.openxmlformats.org/drawingml/2006/spreadsheetDrawing"
+  xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <xdr:twoCellAnchor editAs="oneCell">
+    <xdr:from><xdr:col>1</xdr:col><xdr:colOff>114300</xdr:colOff><xdr:row>0</xdr:row><xdr:rowOff>114300</xdr:rowOff></xdr:from>
+    <xdr:to><xdr:col>2</xdr:col><xdr:colOff>0</xdr:colOff><xdr:row>3</xdr:row><xdr:rowOff>0</xdr:rowOff></xdr:to>
+    <xdr:pic>
+      <xdr:nvPicPr><xdr:cNvPr id="${10+id}" name="Logo"/><xdr:cNvPicPr><a:picLocks noChangeAspect="1"/></xdr:cNvPicPr></xdr:nvPicPr>
+      <xdr:blipFill><a:blip r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></xdr:blipFill>
+      <xdr:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="1104900" cy="855675"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></xdr:spPr>
+    </xdr:pic>
+    <xdr:clientData/>
+  </xdr:twoCellAnchor>
+</xdr:wsDr>`;
+}
+function drawRels(imgName) {
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/${imgName}.png"/>
+</Relationships>`;
+}
+function loadJSZip() {
+  return new Promise((res, rej) => {
+    if (window.JSZip) { res(window.JSZip); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+    s.onload = () => res(window.JSZip);
+    s.onerror = () => rej(new Error('JSZip no disponible'));
+    document.head.appendChild(s);
+  });
+}
+
+// ─── Preview table ────────────────────────────────────────────────────────────
+function renderPreview() {
+  const table = document.getElementById('pt'); table.innerHTML = '';
+  const fields = [
+    ['Nombre',         c => c.nombre],
+    ['Edad / Ciudad',  c => [c.edad, c.ciudad].filter(Boolean).join(' · ')],
+    ['Empresa / Cargo',c => [c.empresa_actual, c.cargo_actual].filter(Boolean).join('\n')],
+    ['Estado laboral', c => c.estado_laboral],
+    ['Renta estimada', c => c.renta_estimada],
+    ['Disponibilidad', c => c.disponibilidad],
+    ['Ajuste al cargo',c => c.ajuste_cargo],
+    ['Gráfico',        c => c],
+    ['Debilidades',    c => c.debilidades],
+  ];
+  const thead = table.createTHead(); const hr = thead.insertRow();
+  const th0 = document.createElement('th'); th0.textContent = 'Campo'; hr.appendChild(th0);
+  S.results.forEach(c => { const th = document.createElement('th'); th.textContent = c.nombre||c._fn; hr.appendChild(th); });
+  const tbody = table.createTBody();
+  fields.forEach(([label, getter]) => {
+    const tr = tbody.insertRow();
+    const td0 = tr.insertCell(); td0.className = 'lbl'; td0.textContent = label;
+    S.results.forEach(c => {
+      const td = tr.insertCell();
+      if (label === 'Ajuste al cargo') {
+        const val = getter(c)||''; let cls = 'aj-o';
+        if (/^Recomendado\/a$/.test(val.trim())) cls = 'aj-r';
+        else if (/No\s+recom/i.test(val)) cls = 'aj-n';
+        td.innerHTML = `<span class="${cls}">${val}</span>`;
+      } else if (label === 'Gráfico') {
+        if (c._chartB64) td.innerHTML = `<img src="data:image/png;base64,${c._chartB64}" class="chart-thumb"/>`;
+        else { td.style.color = '#A0AEC0'; td.textContent = 'No disponible'; }
+      } else {
+        td.style.whiteSpace = 'pre-wrap'; td.textContent = getter(c)||'';
+      }
+    });
+  });
+}
+
+// ─── Reset ────────────────────────────────────────────────────────────────────
+function resetAll() {
+  S.files = []; S.results = []; S.xlsxData = null; S.filename = '';
+  fileList.innerHTML = ''; logEl.innerHTML = ''; logEl.style.display = 'none';
+  pgwrap.style.display = 'none'; previewCard.style.display = 'none';
+  dlBox.style.display = 'none'; runBtn.disabled = true; fInput.value = '';
 }
 </script>
 </body>
