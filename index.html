@@ -265,7 +265,7 @@ Claves requeridas (usa "" si no aparece el dato):
 - debilidades     → párrafos de "oportunidades de mejora" o "aspectos de desarrollo" de la sección VI
 - sugerencias     → párrafos de recomendaciones para la contratación de la sección VI (los que empiezan con "En caso de contratación", "Se recomienda", "Resultará favorable", etc.)`;
 
-  const resp = await fetch('https://puelche-hc.administracion-ee6.workers.dev', {
+  const resp = await fetch('https://puelche-hc.administracion-ee6.workers.dev/analyze', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
