@@ -280,15 +280,25 @@ Claves requeridas (usa "" si no aparece el dato):
   }
   // Worker returns either {text: "..."} directly or full Anthropic response
   const pay = await resp.json();
+  // DEBUG: log full response to console
+  console.log('Worker response:', JSON.stringify(pay).slice(0, 500));
   // Support both Worker format {text} and direct Anthropic format {content:[]}
   let raw = '';
   if (typeof pay.text === 'string') {
     raw = pay.text;
-  } else {
+  } else if (pay.content) {
     raw = (pay.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+  } else if (typeof pay.result === 'string') {
+    raw = pay.result;
+  } else if (typeof pay.response === 'string') {
+    raw = pay.response;
+  } else {
+    // Last resort: stringify and search for JSON
+    raw = JSON.stringify(pay);
   }
+  console.log('Raw text:', raw.slice(0, 300));
   const m = raw.match(/\{[\s\S]*\}/);
-  if (!m) throw new Error('Respuesta sin JSON válido');
+  if (!m) throw new Error(`Respuesta sin JSON válido. Raw: ${raw.slice(0,150)}`);
   return JSON.parse(m[0]);
 }
 
