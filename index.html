@@ -261,8 +261,8 @@ Claves requeridas (usa "" si no aparece el dato):
 - disponibilidad  → disponibilidad para incorporarse (ej: "Inmediata", "Un mes")
 - resumen_laboral → 4-6 viñetas con los hitos más relevantes de su trayectoria, separadas con •
 - ajuste_cargo    → exactamente "Recomendado/a", "Recomendado/a con observaciones", o "No recomendado/a"
-- competencias    → texto completo de la sección VI (primer/segundos párrafos de síntesis de fortalezas) MÁS el contenido de la sección VII ANÁLISIS COMPETENCIAS (áreas de dominio y desafíos). No truncar.
-- debilidades     → párrafos de "oportunidades de mejora" o "aspectos de desarrollo" de la sección VI
+- competencias    → resume las 2 o 3 fortalezas más importantes del candidato en formato de viñetas cortas. Cada viñeta: "• Nombre de la competencia — una frase breve explicando por qué destaca." Máximo 3 viñetas. Basa esto en la sección VI (síntesis) y sección VII (áreas de dominio).
+- debilidades     → resume las 2 o 3 áreas de desarrollo más importantes en formato de viñetas cortas. Cada viñeta: "• Nombre del área — una frase breve explicando el desafío." Máximo 3 viñetas. Basa esto en la sección VI (oportunidades de mejora) y sección VII (áreas de desafíos).
 - sugerencias     → párrafos de recomendaciones para la contratación de la sección VI (los que empiezan con "En caso de contratación", "Se recomienda", "Resultará favorable", etc.)`;
 
   const resp = await fetch('https://puelche-hc.administracion-ee6.workers.dev/analyze', {
